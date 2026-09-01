@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}401 - Unauthorized | SkyGuard AI{% endblock %}
+{% block content %}
+<div class="container-narrow" style="text-align: center; padding: 4rem 1rem;">
+  <div class="stat-value" style="color: var(--primary); font-size: 4rem; margin-bottom: 0.5rem;">401</div>
+  <h1 style="font-size: 1.75rem; margin-bottom: 0.75rem;">Authentication Required</h1>
+  <p style="color: var(--text-secondary); max-width: 450px; margin: 0 auto 1.75rem;">
+    Please log in to your account to access this resource or start a new resume analysis.
+  </p>
+  <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-glow">Log In</a>
+</div>
+{% endblock %}

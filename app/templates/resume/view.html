@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Resume Text - {{ resume.filename }} | SkyGuard AI{% endblock %}
+{% block breadcrumb %}My Resumes / {{ resume.filename }}{% endblock %}
+
+{% block content %}
+<div class="dashboard-header-block">
+  <div>
+    <h1 class="dashboard-greeting">Extracted Resume Text</h1>
+    <p class="dashboard-subtext">
+      Parsed content from <strong>{{ resume.filename }}</strong> ({{ resume.file_type.upper() }}, {{ (resume.file_size / 1024)|round(1) }} KB)
+    </p>
+  </div>
+
+  <div style="display: flex; gap: 0.75rem;">
+    <a href="{{ url_for('main.my_resumes') }}" class="btn btn-outline btn-sm">← Back to Library</a>
+    <a href="{{ url_for('resume.upload') }}" class="btn btn-cyan btn-sm">+ Analyze Role</a>
+  </div>
+</div>
+
+<div class="card" style="padding: 1.75rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-subtle);">
+    <span class="badge badge-neutral">Raw Extracted Text</span>
+    <span style="font-size: 0.8rem; color: var(--text-muted);">{{ resume.extracted_text|length }} characters</span>
+  </div>
+
+  <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1.5rem; font-family: var(--font-mono); font-size: 0.875rem; line-height: 1.7; white-space: pre-wrap; color: var(--text-primary); max-height: 650px; overflow-y: auto;">
+{{ resume.extracted_text }}
+  </div>
+</div>
+{% endblock %}

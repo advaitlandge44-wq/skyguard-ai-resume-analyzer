@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}413 - File Too Large | SkyGuard AI{% endblock %}
+{% block content %}
+<div class="container-narrow" style="text-align: center; padding: 4rem 1rem;">
+  <div class="stat-value" style="color: var(--danger); font-size: 4rem; margin-bottom: 0.5rem;">413</div>
+  <h1 style="font-size: 1.75rem; margin-bottom: 0.75rem;">File Exceeds Maximum Size Limit</h1>
+  <p style="color: var(--text-secondary); max-width: 450px; margin: 0 auto 1.75rem;">
+    The resume you uploaded exceeds the allowed limit (5MB maximum). Please compress your PDF or upload a text-based document.
+  </p>
+  <a href="{{ url_for('resume.upload') }}" class="btn btn-primary btn-glow">Upload Smaller File</a>
+</div>
+{% endblock %}

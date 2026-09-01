@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}My Resumes - SkyGuard AI{% endblock %}
+{% block breadcrumb %}My Resumes{% endblock %}
+
+{% block content %}
+<div class="dashboard-header-block">
+  <div>
+    <h1 class="dashboard-greeting">My Resume Library</h1>
+    <p class="dashboard-subtext">Manage your uploaded resume documents and view extracted plain text.</p>
+  </div>
+
+  <a href="{{ url_for('resume.upload') }}" class="btn btn-cyan btn-lg">
+    <span>+ Upload New Resume</span>
+  </a>
+</div>
+
+{% if resumes %}
+  <div class="analyses-table-card">
+    {% for r in resumes %}
+      <div class="history-card-item">
+        <div class="history-item-left">
+          <div class="kpi-icon cyan" style="width: 40px; height: 40px; font-size: 1.15rem;">📄</div>
+          <div>
+            <div class="history-role-name">{{ r.filename }}</div>
+            <div class="history-meta-row">
+              <span class="badge badge-neutral">{{ r.file_type.upper() }}</span>
+              <span>•</span>
+              <span>Uploaded on {{ r.created_at.strftime('%b %d, %Y - %I:%M %p') }}</span>
+              <span>•</span>
+              <span>{{ (r.file_size / 1024)|round(1) }} KB</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <a href="{{ url_for('resume.view_resume', resume_id=r.id) }}" class="btn btn-outline btn-sm">
+            View Extracted Text
+          </a>
+          <a href="{{ url_for('resume.upload') }}" class="btn btn-primary btn-sm">
+            Analyze Role →
+          </a>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty-placeholder">
+    <div class="empty-placeholder-icon">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+      </svg>
+    </div>
+    <h3>No Uploaded Resumes Found</h3>
+    <p>Upload a PDF or TXT resume to start analyzing ATS compatibility and skills.</p>
+    <a href="{{ url_for('resume.upload') }}" class="btn btn-cyan btn-lg">
+      <span>+ Upload First Resume</span>
+    </a>
+  </div>
+{% endif %}
+{% endblock %}

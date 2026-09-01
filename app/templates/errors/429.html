@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}429 - Rate Limit Exceeded | SkyGuard AI{% endblock %}
+{% block content %}
+<div class="container-narrow" style="text-align: center; padding: 4rem 1rem;">
+  <div class="stat-value" style="color: var(--warning); font-size: 4rem; margin-bottom: 0.5rem;">429</div>
+  <h1 style="font-size: 1.75rem; margin-bottom: 0.75rem;">Too Many Requests</h1>
+  <p style="color: var(--text-secondary); max-width: 450px; margin: 0 auto 1.75rem;">
+    You have made too many requests in a short time. Please wait a minute before analyzing more resumes or sending chat messages.
+  </p>
+  <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">Return to Dashboard</a>
+</div>
+{% endblock %}

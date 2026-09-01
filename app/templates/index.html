@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+
+{% block title %}SkyGuard AI - Analyze Your Resume. Build Your Career.{% endblock %}
+
+{% block public_content %}
+<div class="container">
+  <!-- Hero Section -->
+  <section style="padding: 4.5rem 0 3.5rem;">
+    <div style="display: grid; grid-template-columns: 1.15fr 0.95fr; gap: 3.5rem; align-items: center;">
+      <!-- Hero Left Column: Copy & CTA -->
+      <div>
+        <div class="badge badge-cyan" style="margin-bottom: 1.25rem; font-size: 0.8rem; padding: 0.35rem 0.85rem;">
+          <span>⚡ Next-Generation AI Career Intelligence</span>
+        </div>
+
+        <h1 style="font-size: 3.25rem; font-weight: 800; line-height: 1.12; margin-bottom: 1.25rem; letter-spacing: -0.035em;">
+          Analyze Your Resume.<br>
+          <span style="background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Build Your Career.</span>
+        </h1>
+
+        <p style="font-size: 1.1rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 2rem; max-width: 520px;">
+          Upload your resume, choose your target role, and let AI identify your strengths, skill gaps, ATS compatibility and opportunities for improvement.
+        </p>
+
+        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+          {% if current_user %}
+            <a href="{{ url_for('resume.upload') }}" class="btn btn-cyan btn-lg">
+              <span>Analyze My Resume →</span>
+            </a>
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary btn-lg">
+              <span>Go to Dashboard</span>
+            </a>
+          {% else %}
+            <a href="{{ url_for('auth.register') }}" class="btn btn-cyan btn-lg">
+              <span>Analyze My Resume</span>
+            </a>
+            <a href="#how-it-works" class="btn btn-outline btn-lg">
+              <span>See How It Works</span>
+            </a>
+          {% endif %}
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 1.5rem; margin-top: 2.25rem; font-size: 0.825rem; color: var(--text-muted);">
+          <div style="display: flex; align-items: center; gap: 0.4rem;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>PyMuPDF Text Engine</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.4rem;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>Zero-Fabrication Rewrites</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.4rem;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>ATS Compatibility Audit</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero Right Column: 3D AI Resume Visualization & Floating Insights -->
+      <div style="position: relative;">
+        <div class="hero-3d-wrapper" id="hero-3d-wrapper">
+          <!-- 3D WebGL Canvas Container -->
+          <div id="hero-3d-visual" class="hero-3d-canvas-container"></div>
+
+          <!-- Floating Metric Badge 1: AI Scanner Status -->
+          <div class="floating-hero-pill pill-ai">
+            <span class="pulse-dot"></span>
+            <span style="font-size: 0.78rem; font-weight: 700; color: #ffffff;">AI Scanner Active</span>
+          </div>
+
+          <!-- Floating Metric Badge 2: ATS Score -->
+          <div class="floating-hero-pill pill-ats">
+            <span style="color: var(--success-text); font-weight: 800; font-size: 0.95rem;">✓</span>
+            <div>
+              <div style="font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">ATS Readability</div>
+              <div style="font-size: 0.9rem; font-weight: 800; color: #ffffff;">86 <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">/ 100</span></div>
+            </div>
+          </div>
+
+          <!-- Floating Metric Badge 3: Job Match -->
+          <div class="floating-hero-pill pill-match">
+            <span style="color: var(--accent-cyan); font-size: 1rem;">🎯</span>
+            <div>
+              <div style="font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Role Match</div>
+              <div style="font-size: 0.9rem; font-weight: 800; color: var(--accent-cyan);">78% <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">Fit</span></div>
+            </div>
+          </div>
+
+          <!-- Floating Metric Badge 4: Skills Detected -->
+          <div class="floating-hero-pill pill-skills">
+            <span style="color: var(--primary); font-size: 1rem;">🧩</span>
+            <div>
+              <div style="font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Skills Matrix</div>
+              <div style="font-size: 0.9rem; font-weight: 800; color: #ffffff;">8 <span style="font-size: 0.75rem; color: var(--primary);">/ 12 Matched</span></div>
+            </div>
+          </div>
+
+          <!-- Floating Metric Badge 5: Skill Gap -->
+          <div class="floating-hero-pill pill-gap">
+            <span style="color: var(--warning-text); font-size: 0.9rem;">⚠</span>
+            <span style="font-size: 0.78rem; font-weight: 600; color: var(--warning-text);">Missing: Docker, AWS</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section (Section 7) -->
+  <section id="features" style="padding: 4rem 0;">
+    <div style="text-align: center; max-width: 600px; margin: 0 auto 3rem;">
+      <span class="badge badge-cyan" style="margin-bottom: 0.65rem;">Platform Capabilities</span>
+      <h2 style="font-size: 2rem; margin-bottom: 0.5rem;">Everything You Need to Improve Your Resume</h2>
+      <p>Actionable intelligence designed to get your resume past applicant tracking filters and into recruiters' hands.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
+      <!-- Feature 1 -->
+      <div class="card" style="transition: transform var(--transition-fast);">
+        <div class="kpi-icon blue" style="margin-bottom: 1.15rem; width: 40px; height: 40px; font-size: 1.1rem;">📊</div>
+        <h3 style="font-size: 1.15rem; margin-bottom: 0.45rem;">AI Resume Analysis</h3>
+        <p style="font-size: 0.875rem;">
+          Understand your resume strengths, weaknesses and specific improvement areas across formatting, experience, and projects.
+        </p>
+      </div>
+
+      <!-- Feature 2 -->
+      <div class="card" style="transition: transform var(--transition-fast);">
+        <div class="kpi-icon emerald" style="margin-bottom: 1.15rem; width: 40px; height: 40px; font-size: 1.1rem;">🛡️</div>
+        <h3 style="font-size: 1.15rem; margin-bottom: 0.45rem;">ATS Compatibility</h3>
+        <p style="font-size: 0.875rem;">
+          Check how well your resume follows ATS-friendly formatting, header structures, font hierarchies, and keyword density.
+        </p>
+      </div>
+
+      <!-- Feature 3 -->
+      <div class="card" style="transition: transform var(--transition-fast);">
+        <div class="kpi-icon cyan" style="margin-bottom: 1.15rem; width: 40px; height: 40px; font-size: 1.1rem;">🎯</div>
+        <h3 style="font-size: 1.15rem; margin-bottom: 0.45rem;">Job Match</h3>
+        <p style="font-size: 0.875rem;">
+          Compare your resume against a specific target role or pasted job description to calculate exact qualification alignment.
+        </p>
+      </div>
+
+      <!-- Feature 4 -->
+      <div class="card" style="transition: transform var(--transition-fast);">
+        <div class="kpi-icon purple" style="margin-bottom: 1.15rem; width: 40px; height: 40px; font-size: 1.1rem;">🧩</div>
+        <h3 style="font-size: 1.15rem; margin-bottom: 0.45rem;">Skill Gap Analysis</h3>
+        <p style="font-size: 0.875rem;">
+          Discover the technical skills you already have and the critical competencies you are missing for the target job role.
+        </p>
+      </div>
+
+      <!-- Feature 5 -->
+      <div class="card" style="transition: transform var(--transition-fast);">
+        <div class="kpi-icon blue" style="margin-bottom: 1.15rem; width: 40px; height: 40px; font-size: 1.1rem;">🗺️</div>
+        <h3 style="font-size: 1.15rem; margin-bottom: 0.45rem;">Career Roadmap</h3>
+        <p style="font-size: 0.875rem;">
+          Get a personalized step-by-step learning path based on your missing skills, complete with practical project ideas.
+        </p>
+      </div>
+
+      <!-- Feature 6 -->
+      <div class="card" style="transition: transform var(--transition-fast);">
+        <div class="kpi-icon cyan" style="margin-bottom: 1.15rem; width: 40px; height: 40px; font-size: 1.1rem;">✨</div>
+        <h3 style="font-size: 1.15rem; margin-bottom: 0.45rem;">AI Resume Improver</h3>
+        <p style="font-size: 0.875rem;">
+          Improve weak resume descriptions using the STAR impact method without inventing fake achievements or false metrics.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section (Section 8) -->
+  <section id="how-it-works" style="padding: 4rem 0;">
+    <div style="text-align: center; max-width: 600px; margin: 0 auto 3rem;">
+      <span class="badge badge-primary" style="margin-bottom: 0.65rem;">Simple Workflow</span>
+      <h2 style="font-size: 2rem; margin-bottom: 0.5rem;">How SkyGuard AI Works</h2>
+      <p>Go from an unoptimized resume to an interview-ready application in minutes.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem;">
+      <!-- Step 01 -->
+      <div class="card" style="background: var(--bg-surface); text-align: left; position: relative;">
+        <div style="font-size: 2rem; font-weight: 800; color: var(--primary); letter-spacing: -0.04em; margin-bottom: 0.75rem;">01</div>
+        <h4 style="font-size: 1.1rem; margin-bottom: 0.35rem; color: #ffffff;">Upload Resume</h4>
+        <p style="font-size: 0.85rem; color: var(--text-secondary);">
+          Upload your resume in PDF or TXT format. PyMuPDF safely extracts and normalizes the text content.
+        </p>
+      </div>
+
+      <!-- Step 02 -->
+      <div class="card" style="background: var(--bg-surface); text-align: left; position: relative;">
+        <div style="font-size: 2rem; font-weight: 800; color: var(--accent-cyan); letter-spacing: -0.04em; margin-bottom: 0.75rem;">02</div>
+        <h4 style="font-size: 1.1rem; margin-bottom: 0.35rem; color: #ffffff;">Choose Target Role</h4>
+        <p style="font-size: 0.85rem; color: var(--text-secondary);">
+          Select from popular roles (Python Developer, Full Stack, Data Analyst) or enter a custom job title and description.
+        </p>
+      </div>
+
+      <!-- Step 03 -->
+      <div class="card" style="background: var(--bg-surface); text-align: left; position: relative;">
+        <div style="font-size: 2rem; font-weight: 800; color: var(--accent-indigo); letter-spacing: -0.04em; margin-bottom: 0.75rem;">03</div>
+        <h4 style="font-size: 1.1rem; margin-bottom: 0.35rem; color: #ffffff;">AI Analyzes Resume</h4>
+        <p style="font-size: 0.85rem; color: var(--text-secondary);">
+          AI evaluates technical skills, ATS readability, quantifiable impacts, and identifies missing requirements.
+        </p>
+      </div>
+
+      <!-- Step 04 -->
+      <div class="card" style="background: var(--bg-surface); text-align: left; position: relative;">
+        <div style="font-size: 2rem; font-weight: 800; color: var(--success); letter-spacing: -0.04em; margin-bottom: 0.75rem;">04</div>
+        <h4 style="font-size: 1.1rem; margin-bottom: 0.35rem; color: #ffffff;">Get Personalized Insights</h4>
+        <p style="font-size: 0.85rem; color: var(--text-secondary);">
+          Review your ATS diagnostic, skill gap matrix, phased learning roadmap, and STAR bullet rewrites.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why SkyGuard Section -->
+  <section id="why-skyguard" style="padding: 4rem 0;">
+    <div class="card card-elevated" style="padding: 3rem 2rem;">
+      <div style="text-align: center; max-width: 650px; margin: 0 auto 2.5rem;">
+        <span class="badge badge-cyan" style="margin-bottom: 0.65rem;">Enterprise Grade</span>
+        <h2 style="font-size: 2rem; margin-bottom: 0.5rem;">Why Job Seekers Choose SkyGuard AI</h2>
+        <p>Built for accuracy, explainability, and total candidate privacy.</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
+        <div style="display: flex; gap: 1rem; align-items: flex-start;">
+          <div class="kpi-icon cyan" style="flex-shrink: 0; width: 36px; height: 36px;">✓</div>
+          <div>
+            <h4 style="font-size: 1rem; margin-bottom: 0.25rem;">Zero-Hallucination Rewrites</h4>
+            <p style="font-size: 0.85rem; color: var(--text-secondary);">
+              Our AI bullet optimizer enhances impact and STAR phrasing without inventing false certifications or metrics.
+            </p>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; align-items: flex-start;">
+          <div class="kpi-icon emerald" style="flex-shrink: 0; width: 36px; height: 36px;">🔒</div>
+          <div>
+            <h4 style="font-size: 1rem; margin-bottom: 0.25rem;">Candidate Data Isolation</h4>
+            <p style="font-size: 0.85rem; color: var(--text-secondary);">
+              Your resumes and analyses are strictly encrypted and scoped to your account. No public leakage.
+            </p>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; align-items: flex-start;">
+          <div class="kpi-icon blue" style="flex-shrink: 0; width: 36px; height: 36px;">⚡</div>
+          <div>
+            <h4 style="font-size: 1rem; margin-bottom: 0.25rem;">Actionable Project Roadmaps</h4>
+            <p style="font-size: 0.85rem; color: var(--text-secondary);">
+              Instead of generic advice, get sequenced learning phases with practical portfolio projects you can build.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Banner -->
+  <section style="padding: 3rem 0 5rem; text-align: center;">
+    <div style="max-width: 600px; margin: 0 auto;">
+      <h2 style="font-size: 2.25rem; margin-bottom: 0.85rem;">Ready to optimize your resume?</h2>
+      <p style="font-size: 1rem; color: var(--text-secondary); margin-bottom: 1.75rem;">
+        Upload your resume now to receive instant ATS feedback and a personalized career roadmap.
+      </p>
+      {% if current_user %}
+        <a href="{{ url_for('resume.upload') }}" class="btn btn-cyan btn-lg">
+          <span>+ Analyze New Resume</span>
+        </a>
+      {% else %}
+        <a href="{{ url_for('auth.register') }}" class="btn btn-cyan btn-lg">
+          <span>Create Free Account</span>
+        </a>
+      {% endif %}
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Three.js Lightweight WebGL 3D Engine -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!-- 3D Hero Visualization Script -->
+<script src="{{ url_for('static', filename='js/hero_3d.js') }}"></script>
+{% endblock %}
+

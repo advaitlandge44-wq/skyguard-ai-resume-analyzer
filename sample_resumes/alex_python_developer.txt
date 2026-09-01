@@ -1,0 +1,36 @@
+ALEX MORGAN
+Email: alex.morgan@email.com | Phone: (555) 432-8765 | Location: San Francisco, CA
+LinkedIn: linkedin.com/in/alexmorgan-dev | GitHub: github.com/alexmorgan-dev
+
+PROFESSIONAL SUMMARY
+Proactive Python Full-Stack Developer with 3+ years of experience designing high-throughput REST APIs, architecting relational databases, and implementing containerized microservices. Passionate about automated testing, clean code architecture, and high performance.
+
+CORE TECHNICAL SKILLS
+- Programming: Python, SQL, JavaScript, HTML5, CSS3, Bash
+- Frameworks: Flask, Django, FastAPI, SQLAlchemy
+- Databases: PostgreSQL, SQLite, MySQL, Redis
+- Developer Tools: Git, GitHub, Docker, Postman, Linux, Pytest, REST APIs
+
+PROFESSIONAL WORK EXPERIENCE
+Backend Software Developer | Nexus Cloud Solutions (2022 - Present)
+- Engineered 15+ RESTful API microservices using Python and Flask, handling 50,000+ daily requests with 99.9% uptime.
+- Optimized slow PostgreSQL queries with composite indexing and query rewriting, reducing database response time by 42%.
+- Integrated secure JWT session authentication, password hashing with PBKDF2, and CORS protection.
+- Authored 120+ unit and integration tests using Pytest, boosting code coverage from 55% to 88%.
+
+Junior Python Developer | Apex Software Labs (2021 - 2022)
+- Built internal analytics dashboards using Python, Flask, and SQLite for tracking client onboarding metrics.
+- Automated weekly data ETL workflows with Python scripts, saving 8 hours of manual engineering effort per week.
+- Collaborated in an Agile/Scrum team of 6 engineers using Git version control and pull request code reviews.
+
+KEY TECHNICAL PROJECTS
+1. SkyGuard AI Career Assistant:
+   - Full-stack web application developed using Python, Flask, PyMuPDF, and SQLAlchemy.
+   - Implemented ATS text extraction, structured JSON parsing, and deterministic fallback scoring.
+2. Distributed Task Queue:
+   - Built a distributed asynchronous background job worker in Python and Redis supporting delayed task execution and failure retries.
+
+EDUCATION
+Bachelor of Science in Computer Science
+State Institute of Technology (2017 - 2021) | GPA: 3.8 / 4.0
+- Relevant Coursework: Data Structures & Algorithms, Database Management Systems, Operating Systems, Web Engineering.

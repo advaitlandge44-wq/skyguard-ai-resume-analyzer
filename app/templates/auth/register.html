@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account - SkyGuard AI{% endblock %}
+
+{% block public_content %}
+<div class="container" style="padding: 3rem 1.5rem;">
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3.5rem; align-items: center; max-width: 960px; margin: 0 auto;">
+    
+    <!-- Left Column: Branding & Features -->
+    <div>
+      <div class="nav-brand" style="margin-bottom: 1.5rem;">
+        <div class="brand-icon" style="width: 40px; height: 40px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <span class="brand-text" style="font-size: 1.5rem;">SkyGuard <span>AI</span></span>
+      </div>
+
+      <h2 style="font-size: 2.2rem; line-height: 1.2; margin-bottom: 1rem; letter-spacing: -0.03em;">
+        Start Analyzing Your Resume with <span style="color: var(--accent-cyan);">AI</span>
+      </h2>
+
+      <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 2rem;">
+        Join thousands of tech candidates who use SkyGuard AI to optimize their resumes for top technical roles and Applicant Tracking Systems.
+      </p>
+
+      <div style="display: flex; flex-direction: column; gap: 0.85rem; font-size: 0.85rem; color: var(--text-muted);">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="color: var(--success); font-weight: 700;">✓</span> Instant tri-metric ATS and role compatibility score
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="color: var(--success); font-weight: 700;">✓</span> Actionable skill roadmap with hands-on project ideas
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="color: var(--success); font-weight: 700;">✓</span> Full candidate data encryption and privacy isolation
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Registration Card -->
+    <div>
+      <div class="card card-elevated" style="padding: 2.25rem 2rem;">
+        <div style="margin-bottom: 1.75rem;">
+          <h3 style="font-size: 1.35rem; margin-bottom: 0.35rem;">Create Account</h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary);">Fill in your details to get started</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.register') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+          <div class="form-group">
+            <label for="name" class="form-label">Full Name</label>
+            <input 
+              type="text" 
+              id="name" 
+              name="name" 
+              class="form-control" 
+              placeholder="Jane Doe" 
+              value="{{ name or '' }}" 
+              required 
+              autocomplete="name"
+              autofocus
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="email" class="form-label">Email Address</label>
+            <input 
+              type="email" 
+              id="email" 
+              name="email" 
+              class="form-control" 
+              placeholder="jane.doe@example.com" 
+              value="{{ email or '' }}" 
+              required 
+              autocomplete="email"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="password" class="form-label">Password</label>
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              class="form-control" 
+              placeholder="Minimum 8 characters" 
+              minlength="8" 
+              required 
+              autocomplete="new-password"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="confirm_password" class="form-label">Confirm Password</label>
+            <input 
+              type="password" 
+              id="confirm_password" 
+              name="confirm_password" 
+              class="form-control" 
+              placeholder="Re-enter password" 
+              minlength="8" 
+              required 
+              autocomplete="new-password"
+            >
+          </div>
+
+          <button type="submit" class="btn btn-cyan btn-lg" style="width: 100%; margin-top: 0.5rem;">
+            <span>Create Account</span>
+          </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border-subtle); font-size: 0.85rem; color: var(--text-secondary);">
+          Already have an account? 
+          <a href="{{ url_for('auth.login') }}" style="font-weight: 600; color: var(--accent-cyan);">Sign In here</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

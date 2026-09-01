@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Profile & Settings - SkyGuard AI{% endblock %}
+{% block breadcrumb %}Profile & Settings{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px;">
+  <div class="dashboard-header-block">
+    <div>
+      <h1 class="dashboard-greeting">Account & Security</h1>
+      <p class="dashboard-subtext">Manage your profile details, view your analytics, and update security credentials.</p>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+    <!-- Profile Card -->
+    <div class="card">
+      <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+        <div style="width: 52px; height: 52px; border-radius: var(--radius-full); background: var(--gradient-primary); color: #ffffff; font-weight: 800; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-glow);">
+          {{ user.name[:1].upper() }}
+        </div>
+        <div>
+          <h3 style="font-size: 1.15rem; margin-bottom: 0.15rem;">{{ user.name }}</h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary);">{{ user.email }}</p>
+          <span class="badge badge-cyan" style="margin-top: 0.35rem;">Candidate Account</span>
+        </div>
+      </div>
+
+      <div style="border-top: 1px solid var(--border-subtle); padding-top: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.85rem;">
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: var(--text-muted);">Joined SkyGuard:</span>
+          <span style="color: #ffffff; font-weight: 500;">{{ user.created_at.strftime('%B %d, %Y') if user.created_at else 'Recently' }}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: var(--text-muted);">Total Resumes Evaluated:</span>
+          <span style="color: var(--accent-cyan); font-weight: 700;">{{ total_analyses }}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: var(--text-muted);">Latest Overall Score:</span>
+          <span style="color: var(--primary); font-weight: 700;">{{ latest_analysis.overall_score if latest_analysis else 'N/A' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Update Name Form -->
+    <div class="card">
+      <h3 style="font-size: 1.1rem; margin-bottom: 1.15rem;">Update Profile Name</h3>
+      
+      <form method="POST" action="{{ url_for('auth.profile') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="action" value="update_profile">
+
+        <div class="form-group">
+          <label for="name" class="form-label">Full Name</label>
+          <input type="text" id="name" name="name" class="form-control" value="{{ user.name }}" required>
+        </div>
+
+        <button type="submit" class="btn btn-secondary btn-sm">
+          Save Changes
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Security & Password Card -->
+  <div class="card" style="max-width: 500px;">
+    <h3 style="font-size: 1.1rem; margin-bottom: 0.35rem;">Change Password</h3>
+    <p style="font-size: 0.825rem; color: var(--text-secondary); margin-bottom: 1.25rem;">Ensure your account uses a strong, minimum 8-character password.</p>
+
+    <form method="POST" action="{{ url_for('auth.profile') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="change_password">
+
+      <div class="form-group">
+        <label for="current_password" class="form-label">Current Password</label>
+        <input type="password" id="current_password" name="current_password" class="form-control" placeholder="••••••••" required>
+      </div>
+
+      <div class="form-group">
+        <label for="new_password" class="form-label">New Password</label>
+        <input type="password" id="new_password" name="new_password" class="form-control" placeholder="Minimum 8 characters" minlength="8" required>
+      </div>
+
+      <div class="form-group">
+        <label for="confirm_new_password" class="form-label">Confirm New Password</label>
+        <input type="password" id="confirm_new_password" name="confirm_new_password" class="form-control" placeholder="Re-enter new password" minlength="8" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%;">
+        Update Password
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

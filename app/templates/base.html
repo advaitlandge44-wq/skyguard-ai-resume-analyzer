@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <meta name="description" content="SkyGuard AI - Analyze Your Resume. Build Your Career. AI-powered resume analysis, ATS insights, and personalized career roadmaps.">
+  <title>{% block title %}SkyGuard AI - Resume Analyzer & Career Assistant{% endblock %}</title>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Core CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/variables.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+{% if current_user and request.endpoint != 'main.index' %}
+  <!-- Authenticated App Shell with Sidebar -->
+  <div class="app-layout">
+    <aside class="app-sidebar" id="app-sidebar">
+      <div class="sidebar-header">
+        <a href="{{ url_for('main.dashboard') }}" class="nav-brand">
+          <div class="brand-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <span class="brand-text">SkyGuard <span>AI</span></span>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="sidebar-heading">Navigation</div>
+        
+        <a href="{{ url_for('main.dashboard') }}" class="sidebar-link {% if request.endpoint == 'main.dashboard' %}active{% endif %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          <span>Dashboard</span>
+        </a>
+
+        <a href="{{ url_for('resume.upload') }}" class="sidebar-link {% if request.endpoint == 'resume.upload' %}active{% endif %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="16"></line>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+          </svg>
+          <span>New Analysis</span>
+        </a>
+
+        <a href="{{ url_for('main.my_resumes') }}" class="sidebar-link {% if request.endpoint == 'main.my_resumes' or request.endpoint == 'resume.view_resume' %}active{% endif %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+          </svg>
+          <span>My Resumes</span>
+        </a>
+
+        <a href="{{ url_for('main.history') }}" class="sidebar-link {% if request.endpoint == 'main.history' or request.endpoint == 'analysis.results' %}active{% endif %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span>Analysis History</span>
+        </a>
+
+        <a href="{{ url_for('main.roadmap') }}" class="sidebar-link {% if request.endpoint == 'main.roadmap' %}active{% endif %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+            <line x1="8" y1="2" x2="8" y2="18"></line>
+            <line x1="16" y1="6" x2="16" y2="22"></line>
+          </svg>
+          <span>Career Roadmap</span>
+        </a>
+
+        <div class="sidebar-heading" style="margin-top: 1rem;">Account</div>
+
+        <a href="{{ url_for('auth.profile') }}" class="sidebar-link {% if request.endpoint == 'auth.profile' %}active{% endif %}">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span>Profile & Settings</span>
+        </a>
+
+        <a href="{{ url_for('auth.logout') }}" class="sidebar-link" style="color: var(--text-muted);">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span>Logout</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user-info">
+          <div class="user-avatar-sm">{{ current_user.name[:1].upper() }}</div>
+          <div style="overflow: hidden;">
+            <div class="user-name-text">{{ current_user.name }}</div>
+            <div class="user-role-text">{{ current_user.email }}</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="app-main">
+      <header class="app-topbar">
+        <button type="button" class="mobile-toggle" id="sidebar-toggle-btn" aria-label="Toggle sidebar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+
+        <div style="font-size: 0.85rem; color: var(--text-secondary); display: flex; align-items: center; gap: 0.5rem;">
+          <span>SkyGuard AI</span>
+          <span>/</span>
+          <span style="color: #ffffff; font-weight: 600;">{% block breadcrumb %}Workspace{% endblock %}</span>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <a href="{{ url_for('resume.upload') }}" class="btn btn-cyan btn-sm">
+            <span>+ Analyze New Resume</span>
+          </a>
+        </div>
+      </header>
+
+      <div class="app-content-area">
+        <!-- Flash Alerts Container -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="alerts-wrapper">
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                  <span>{{ message }}</span>
+                  <button type="button" class="alert-close">&times;</button>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+  </div>
+
+{% else %}
+  <!-- Public Layout (Landing, Login, Register) -->
+  <nav class="navbar">
+    <div class="container nav-container">
+      <a href="{{ url_for('main.index') }}" class="nav-brand">
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <span class="brand-text">SkyGuard <span>AI</span></span>
+      </a>
+
+      <button class="mobile-toggle" id="public-mobile-toggle" aria-label="Toggle navigation">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+
+      <ul class="nav-links" id="public-nav-links">
+        <li><a href="{{ url_for('main.index') }}#features" class="nav-link">Features</a></li>
+        <li><a href="{{ url_for('main.index') }}#how-it-works" class="nav-link">How It Works</a></li>
+        <li><a href="{{ url_for('main.index') }}#why-skyguard" class="nav-link">Why SkyGuard</a></li>
+      </ul>
+
+      <div class="nav-auth">
+        {% if current_user %}
+          <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary btn-sm">Go to Dashboard</a>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}" class="btn btn-outline btn-sm">Login</a>
+          <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-sm">Get Started</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <!-- Flash Alerts Container -->
+  <div class="container" style="margin-top: 1rem;">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="alerts-wrapper">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+              <span>{{ message }}</span>
+              <button type="button" class="alert-close">&times;</button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <main style="flex: 1;">
+    {% block public_content %}{% block content_alias %}{% endblock %}{% endblock %}
+  </main>
+
+  <!-- Public Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div>
+          <div class="nav-brand" style="margin-bottom: 0.5rem;">
+            <span class="brand-text">SkyGuard <span>AI</span></span>
+          </div>
+          <p style="max-width: 380px; font-size: 0.85rem; color: var(--text-secondary);">
+            Analyze Your Resume. Build Your Career. AI-powered resume analysis, ATS insights, job matching and personalized career guidance.
+          </p>
+        </div>
+
+        <div>
+          <h4 style="font-size: 0.9rem; margin-bottom: 0.75rem; color: #ffffff;">Platform</h4>
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.85rem;">
+            <li><a href="{{ url_for('main.index') }}#features">AI Resume Analysis</a></li>
+            <li><a href="{{ url_for('main.index') }}#features">ATS Compatibility</a></li>
+            <li><a href="{{ url_for('main.index') }}#features">Skill Gap Diagnostic</a></li>
+            <li><a href="{{ url_for('main.index') }}#how-it-works">Career Roadmap</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 style="font-size: 0.9rem; margin-bottom: 0.75rem; color: #ffffff;">Security & Engine</h4>
+          <div style="display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.45rem; font-size: 0.85rem;">
+            <span style="width: 7px; height: 7px; border-radius: 50%; background: var(--success); display: inline-block;"></span>
+            <span>Zero-Fabrication Rewriter Active</span>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.8rem;">PBKDF2 Hashed • CSRF Protected • PyMuPDF Parser</p>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 SkyGuard AI. All rights reserved.</p>
+        <p style="color: var(--text-muted);">Analyze Your Resume. Build Your Career.</p>
+      </div>
+    </div>
+  </footer>
+{% endif %}
+
+  <!-- Global JS -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

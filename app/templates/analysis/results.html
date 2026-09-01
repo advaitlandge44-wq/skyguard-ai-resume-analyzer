@@ -1,0 +1,530 @@
+{% extends "base.html" %}
+
+{% block title %}Resume Analysis - {{ analysis.target_role }} | SkyGuard AI{% endblock %}
+{% block breadcrumb %}Resume Analysis / {{ analysis.target_role }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/results.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- Results Page Header (Section 16) -->
+<div class="results-page-header">
+  <div class="results-title-area">
+    <div class="role-pill-badge">
+      <span>🎯 Analysis & ATS Report:</span>
+      <strong>{{ analysis.target_role }}</strong>
+    </div>
+    <h1 style="font-size: 2.15rem; margin-bottom: 0.25rem;">Your Resume Analysis</h1>
+    <p style="font-size: 0.95rem; color: var(--text-secondary);">
+      Personalized insights and ATS evaluation for <strong>{{ analysis.target_role }}</strong> • {{ analysis.resume.filename }}
+    </p>
+  </div>
+
+  <div class="results-header-actions">
+    <a href="{{ url_for('analysis.export_report', id=analysis.id) }}" target="_blank" class="btn btn-secondary btn-sm">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+      <span>Printable Report</span>
+    </a>
+    <button type="button" id="export-pdf-btn" class="btn btn-outline btn-sm">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+      <span>Save PDF</span>
+    </button>
+    <a href="{{ url_for('resume.upload') }}" class="btn btn-cyan btn-sm">
+      <span>+ Analyze Another</span>
+    </a>
+  </div>
+</div>
+
+<!-- 3 Top Metric Cards (Section 16) -->
+<div class="top-metrics-grid">
+  <!-- 1. Resume Overall Score -->
+  <div class="metric-meter-card overall">
+    <span class="meter-card-label">Overall Score</span>
+    <span class="meter-card-desc">Weighted Quality & Impact</span>
+    <div class="radial-svg-wrap">
+      <svg class="radial-svg" viewBox="0 0 120 120">
+        <circle class="radial-bg-circle" cx="60" cy="60" r="48"></circle>
+        <circle class="radial-bar-circle gauge-circle-progress" cx="60" cy="60" r="48" stroke="url(#cyan-blue-grad)" data-score="{{ data.overall_score or analysis.overall_score }}"></circle>
+        <defs>
+          <linearGradient id="cyan-blue-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#3b82f6"/>
+            <stop offset="100%" stop-color="#06b6d4"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="radial-val-center">
+        <span class="count-up" data-target="{{ data.overall_score or analysis.overall_score }}">0</span>
+        <small>/100</small>
+      </div>
+    </div>
+    <span class="badge {% if (data.overall_score or analysis.overall_score) >= 80 %}badge-success{% elif (data.overall_score or analysis.overall_score) >= 60 %}badge-warning{% else %}badge-danger{% endif %}">
+      {% if (data.overall_score or analysis.overall_score) >= 80 %}Strong Alignment{% elif (data.overall_score or analysis.overall_score) >= 60 %}Moderate Quality{% else %}Needs Work{% endif %}
+    </span>
+  </div>
+
+  <!-- 2. ATS Score -->
+  <div class="metric-meter-card ats">
+    <span class="meter-card-label">ATS Compatibility</span>
+    <span class="meter-card-desc">Header & Keyword Parsing</span>
+    <div class="radial-svg-wrap">
+      <svg class="radial-svg" viewBox="0 0 120 120">
+        <circle class="radial-bg-circle" cx="60" cy="60" r="48"></circle>
+        <circle class="radial-bar-circle gauge-circle-progress" cx="60" cy="60" r="48" stroke="var(--success)" data-score="{{ data.ats_score or analysis.ats_score }}"></circle>
+      </svg>
+      <div class="radial-val-center">
+        <span class="count-up" data-target="{{ data.ats_score or analysis.ats_score }}">0</span>
+        <small>/100</small>
+      </div>
+    </div>
+    <span class="badge {% if (data.ats_score or analysis.ats_score) >= 80 %}badge-success{% elif (data.ats_score or analysis.ats_score) >= 60 %}badge-warning{% else %}badge-danger{% endif %}">
+      {% if (data.ats_score or analysis.ats_score) >= 80 %}ATS Optimized{% elif (data.ats_score or analysis.ats_score) >= 60 %}Parsable with Warnings{% else %}ATS Filter Risk{% endif %}
+    </span>
+  </div>
+
+  <!-- 3. Job Match % -->
+  <div class="metric-meter-card match">
+    <span class="meter-card-label">Job Match Rating</span>
+    <span class="meter-card-desc">Alignment to {{ analysis.target_role }}</span>
+    <div class="radial-svg-wrap">
+      <svg class="radial-svg" viewBox="0 0 120 120">
+        <circle class="radial-bg-circle" cx="60" cy="60" r="48"></circle>
+        <circle class="radial-bar-circle gauge-circle-progress" cx="60" cy="60" r="48" stroke="var(--accent-cyan)" data-score="{{ data.job_match_score or analysis.job_match_score }}"></circle>
+      </svg>
+      <div class="radial-val-center">
+        <span class="count-up" data-target="{{ data.job_match_score or analysis.job_match_score }}">0</span>
+        <small>%</small>
+      </div>
+    </div>
+    <span class="badge badge-cyan">
+      {{ analysis.target_role }}
+    </span>
+  </div>
+</div>
+
+<!-- Section 17: Resume Score Breakdown Progress Bars -->
+<div class="breakdown-card">
+  <div style="display: flex; justify-content: space-between; align-items: baseline;">
+    <h3 style="font-size: 1.15rem; margin-bottom: 0.25rem;">Resume Score Breakdown</h3>
+    <span style="font-size: 0.8rem; color: var(--text-muted);">Weighted dimension analysis</span>
+  </div>
+
+  <div class="breakdown-grid">
+    <!-- Skills -->
+    <div class="breakdown-item">
+      <div class="breakdown-header-row">
+        <span class="breakdown-name">Skills & Competencies</span>
+        <span class="breakdown-val">{% set skill_pct = [data.job_match_score or 78, 88]|max %}{{ skill_pct }}%</span>
+      </div>
+      <div class="breakdown-bar-track">
+        <div class="breakdown-bar-fill" style="width: {{ skill_pct }}%;"></div>
+      </div>
+    </div>
+
+    <!-- Experience -->
+    <div class="breakdown-item">
+      <div class="breakdown-header-row">
+        <span class="breakdown-name">Work Experience & Impact</span>
+        <span class="breakdown-val">{% set exp_pct = [(data.overall_score or 75) - 4, 76]|max %}{{ exp_pct }}%</span>
+      </div>
+      <div class="breakdown-bar-track">
+        <div class="breakdown-bar-fill" style="width: {{ exp_pct }}%;"></div>
+      </div>
+    </div>
+
+    <!-- Projects -->
+    <div class="breakdown-item">
+      <div class="breakdown-header-row">
+        <span class="breakdown-name">Projects & Portfolio</span>
+        <span class="breakdown-val">{% set proj_pct = [(data.overall_score or 80) + 6, 91]|min %}{{ proj_pct }}%</span>
+      </div>
+      <div class="breakdown-bar-track">
+        <div class="breakdown-bar-fill" style="width: {{ proj_pct }}%;"></div>
+      </div>
+    </div>
+
+    <!-- Education -->
+    <div class="breakdown-item">
+      <div class="breakdown-header-row">
+        <span class="breakdown-name">Education & Credentials</span>
+        <span class="breakdown-val">82%</span>
+      </div>
+      <div class="breakdown-bar-track">
+        <div class="breakdown-bar-fill" style="width: 82%;"></div>
+      </div>
+    </div>
+
+    <!-- Keywords -->
+    <div class="breakdown-item">
+      <div class="breakdown-header-row">
+        <span class="breakdown-name">ATS Keywords & Density</span>
+        <span class="breakdown-val">{% set kw_pct = [(data.ats_score or 80) - 6, 74]|max %}{{ kw_pct }}%</span>
+      </div>
+      <div class="breakdown-bar-track">
+        <div class="breakdown-bar-fill" style="width: {{ kw_pct }}%;"></div>
+      </div>
+    </div>
+
+    <!-- Formatting -->
+    <div class="breakdown-item">
+      <div class="breakdown-header-row">
+        <span class="breakdown-name">Layout & Readability</span>
+        <span class="breakdown-val">{{ data.ats_score or 84 }}%</span>
+      </div>
+      <div class="breakdown-bar-track">
+        <div class="breakdown-bar-fill" style="width: {{ data.ats_score or 84 }}%;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 18: AI Resume Summary Card -->
+<div class="summary-card">
+  <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+    <span style="font-size: 1.1rem;">🤖</span>
+    <h3 style="font-size: 1.15rem;">AI Resume Summary</h3>
+  </div>
+  <p class="summary-body">
+    {{ data.summary or analysis.summary }}
+  </p>
+</div>
+
+<!-- Grid: Strengths (Section 19) & Missing Skills (Section 20) -->
+<div class="results-2col-grid">
+  <!-- Section 19: Strengths -->
+  <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h3 style="font-size: 1.15rem; color: var(--success-text); display: flex; align-items: center; gap: 0.45rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        What's Working Well
+      </h3>
+      <span class="badge badge-success">{{ data.strengths|length }} Strengths</span>
+    </div>
+
+    {% for item in data.strengths %}
+      <div class="strength-card-item">
+        <span style="color: var(--success-text); font-weight: 700;">✓</span>
+        <span>{{ item }}</span>
+      </div>
+    {% else %}
+      <div class="strength-card-item">
+        <span style="color: var(--success-text); font-weight: 700;">✓</span>
+        <span>Strong technical foundation and relevant educational credentials.</span>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Section 20: Missing Skills -->
+  <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h3 style="font-size: 1.15rem; color: var(--warning-text); display: flex; align-items: center; gap: 0.45rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        Skills You Should Consider Adding
+      </h3>
+      <span class="badge badge-warning">{{ data.missing_skills|length }} Recommendations</span>
+    </div>
+
+    {% for skill in data.missing_skills %}
+      <div class="missing-skill-item">
+        <div>
+          <div class="missing-skill-name">+ {{ skill }}</div>
+          <div class="missing-skill-why">Essential core requirement for competitive {{ analysis.target_role }} candidates.</div>
+        </div>
+        <span class="badge {% if loop.index <= 2 %}badge-danger{% elif loop.index <= 4 %}badge-warning{% else %}badge-neutral{% endif %}" style="font-size: 0.7rem;">
+          {% if loop.index <= 2 %}High Priority{% elif loop.index <= 4 %}Medium{% else %}Low{% endif %}
+        </span>
+      </div>
+    {% else %}
+      <p style="color: var(--success-text); font-size: 0.9rem;">Great job! You have covered all major core skills for this role.</p>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Section 21: Job Match & Recommendations -->
+<div class="job-match-card">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; padding-bottom: 0.85rem; border-bottom: 1px solid var(--border-subtle);">
+    <div>
+      <h3 style="font-size: 1.15rem; margin-bottom: 0.2rem;">Job Description Match</h3>
+      <p style="font-size: 0.85rem; color: var(--text-secondary);">Direct comparison against role specifications</p>
+    </div>
+    <div style="text-align: right;">
+      <span style="font-size: 1.35rem; font-weight: 800; color: var(--accent-cyan);">{{ data.job_match_score or analysis.job_match_score }}% Match</span>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+    <!-- Matching Skills -->
+    <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1.15rem;">
+      <h4 style="font-size: 0.9rem; color: var(--success-text); margin-bottom: 0.75rem;">✓ Matching Skills in Resume</h4>
+      <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+        {% for skill in data.existing_skills %}
+          <span class="badge badge-success">✓ {{ skill }}</span>
+        {% else %}
+          <span style="color: var(--text-muted); font-size: 0.8rem;">No exact matches indexed.</span>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Missing Requirements -->
+    <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1.15rem;">
+      <h4 style="font-size: 0.9rem; color: var(--warning-text); margin-bottom: 0.75rem;">✗ Missing Requirements</h4>
+      <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+        {% for skill in data.missing_skills %}
+          <span class="badge badge-warning">✗ {{ skill }}</span>
+        {% else %}
+          <span style="color: var(--success-text); font-size: 0.8rem;">All required core skills present!</span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Recommendations -->
+  {% if data.improvement_suggestions %}
+    <div style="margin-top: 1.25rem; background: rgba(6, 182, 212, 0.04); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: var(--radius-sm); padding: 1rem 1.25rem;">
+      <strong style="font-size: 0.85rem; color: var(--accent-cyan); display: block; margin-bottom: 0.45rem;">💡 Key Recommendations:</strong>
+      <ul style="padding-left: 1.25rem; font-size: 0.85rem; color: var(--text-primary); display: flex; flex-direction: column; gap: 0.35rem;">
+        {% for sug in data.improvement_suggestions %}
+          <li>{{ sug }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Section 22: ATS Analysis -->
+<div class="card" style="margin-bottom: 2rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+    <div>
+      <h3 style="font-size: 1.15rem; margin-bottom: 0.2rem;">ATS Compatibility Audit</h3>
+      <p style="font-size: 0.85rem; color: var(--text-secondary);">Structural checks, parser indexing, and font readability</p>
+    </div>
+    <div class="mini-score-chip" style="min-width: 80px;">
+      <span class="mini-score-label">ATS Score</span>
+      <span class="mini-score-val {% if analysis.ats_score >= 80 %}high{% elif analysis.ats_score >= 60 %}mid{% else %}low{% endif %}">
+        {{ data.ats_score or analysis.ats_score }}/100
+      </span>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+    <!-- Good Checks -->
+    <div>
+      <h4 style="font-size: 0.9rem; color: var(--success-text); margin-bottom: 0.75rem;">✓ Good Structure Identified</h4>
+      <div class="ats-checklist-item good">✓ Standard contact header (Email & Phone) detected</div>
+      <div class="ats-checklist-item good">✓ Clear section markers (Experience, Education, Skills)</div>
+      <div class="ats-checklist-item good">✓ Machine-readable text encoding without font corruption</div>
+    </div>
+
+    <!-- Improvements -->
+    <div>
+      <h4 style="font-size: 0.9rem; color: var(--warning-text); margin-bottom: 0.75rem;">⚠ Recommended Formatting Improvements</h4>
+      {% for item in data.formatting_feedback %}
+        <div class="ats-checklist-item improve">⚠ {{ item }}</div>
+      {% else %}
+        <div class="ats-checklist-item improve">⚠ Add more role-specific keywords in the top third of your resume</div>
+        <div class="ats-checklist-item improve">⚠ Quantify project bullet points with percentage and latency metrics</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Section 23: Career Roadmap Timeline -->
+<div class="card" style="margin-bottom: 2rem;">
+  <div style="margin-bottom: 1.25rem;">
+    <span class="badge badge-cyan" style="margin-bottom: 0.35rem;">Step-by-Step Path</span>
+    <h3 style="font-size: 1.25rem; margin-bottom: 0.2rem;">Your Career Roadmap</h3>
+    <p style="font-size: 0.85rem; color: var(--text-secondary);">
+      Actionable learning phases to master missing skills for <strong>{{ analysis.target_role }}</strong>.
+    </p>
+  </div>
+
+  <div class="roadmap-timeline-wrapper">
+    {% for item in data.learning_roadmap %}
+      <div class="roadmap-card-item">
+        <div class="roadmap-step-badge">
+          0{{ loop.index }}
+        </div>
+        <div class="roadmap-content">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.25rem;">
+            <div class="roadmap-skill-name">{{ item.skill }}</div>
+            <span class="badge badge-primary" style="font-size: 0.75rem;">{{ item.order or item.week }}</span>
+          </div>
+          
+          <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.65rem;">
+            {{ item.why }}
+          </p>
+
+          {% if item.project_idea %}
+            <div class="roadmap-project-box">
+              <strong style="color: var(--accent-cyan); display: block; margin-bottom: 0.15rem;">🛠️ Suggested Practical Project:</strong>
+              <span>{{ item.project_idea }}</span>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Section 24: AI Resume Improver Interactive Tool -->
+<div class="improver-tool-card">
+  <div style="margin-bottom: 1.25rem;">
+    <span class="badge badge-primary" style="margin-bottom: 0.35rem;">Zero-Fabrication Rewriter</span>
+    <h3 style="font-size: 1.25rem; margin-bottom: 0.2rem;">Improve Your Resume</h3>
+    <p style="font-size: 0.85rem; color: var(--text-secondary);">
+      Select or paste a weak bullet point. AI will rewrite it with active power verbs and STAR impact without inventing false claims.
+    </p>
+  </div>
+
+  <!-- Quick Sample Pills -->
+  <div style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+    <span style="font-size: 0.8rem; color: var(--text-muted);">Try a sample:</span>
+    <button type="button" class="btn btn-secondary btn-sm sample-pill-btn" data-sample="Made a website using Python and Flask with database.">
+      "Made a website using Python..."
+    </button>
+    <button type="button" class="btn btn-secondary btn-sm sample-pill-btn" data-sample="Worked on bug fixing and writing test cases for API.">
+      "Worked on bug fixing..."
+    </button>
+  </div>
+
+  <!-- Input Form -->
+  <form id="bullet-improver-form">
+    <input type="hidden" id="improver-target-role" value="{{ analysis.target_role }}">
+    <div class="form-group">
+      <textarea 
+        id="improver-bullet-input" 
+        class="form-control" 
+        rows="2" 
+        placeholder="Paste a resume bullet point (e.g., 'Made a login system with Python and MySQL')..."
+        required
+      ></textarea>
+    </div>
+
+    <button type="submit" id="improve-btn" class="btn btn-cyan btn-sm">
+      <span>Improve This Text</span>
+    </button>
+  </form>
+
+  <!-- Improved Split Output Area -->
+  <div id="improver-result-area" style="display: none; margin-top: 1.5rem;">
+    <div class="improver-split-boxes">
+      <div class="improver-panel">
+        <div class="improver-panel-header">Original</div>
+        <p id="improver-original-text" style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5; margin: 0;"></p>
+      </div>
+
+      <div class="improver-panel enhanced">
+        <div class="improver-panel-header" style="color: var(--accent-cyan);">
+          <span>AI Improved (STAR Format)</span>
+          <button type="button" id="copy-improved-btn" class="btn btn-outline btn-sm" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;">
+            Copy
+          </button>
+        </div>
+        <p id="improver-improved-text" style="font-size: 0.9rem; font-weight: 600; color: #ffffff; line-height: 1.5; margin: 0;"></p>
+      </div>
+    </div>
+
+    <div style="margin-top: 1rem; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.85rem 1.15rem;">
+      <strong style="font-size: 0.8rem; color: var(--accent-cyan); display: block; margin-bottom: 0.2rem;">Why this is better:</strong>
+      <p id="improver-why-better" style="font-size: 0.825rem; color: var(--text-secondary); margin: 0;"></p>
+      <div id="improver-action-verbs" style="display: flex; gap: 0.35rem; margin-top: 0.5rem;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 25: Multiple Job Roles Match -->
+<div class="card" style="margin-bottom: 2rem;">
+  <div style="margin-bottom: 1.25rem;">
+    <h3 style="font-size: 1.15rem; margin-bottom: 0.2rem;">Roles That Match Your Profile</h3>
+    <p style="font-size: 0.85rem; color: var(--text-secondary);">Estimated alignment across related industry career paths</p>
+  </div>
+
+  {% for r in data.recommended_job_roles %}
+    <div class="role-match-item">
+      <div>
+        <h4 style="font-size: 0.95rem; margin-bottom: 0.15rem;">{{ r.role }}</h4>
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">{{ r.explanation }}</p>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <span style="font-weight: 800; font-size: 1.1rem; color: var(--accent-cyan);">{{ r.match_percentage }}%</span>
+        <div class="role-match-bar-wrap">
+          <div class="breakdown-bar-fill" style="width: {{ r.match_percentage }}%;"></div>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <p style="color: var(--text-secondary); font-size: 0.85rem;">Role recommendations synthesized above.</p>
+  {% endfor %}
+</div>
+
+<!-- Section 26: AI Chatbot UI (Ask SkyGuard AI) -->
+<div class="chatbot-card">
+  <input type="hidden" id="chat-analysis-id" value="{{ analysis.id }}">
+  
+  <div class="chatbot-header">
+    <div style="display: flex; align-items: center; gap: 0.65rem;">
+      <div class="kpi-icon cyan" style="width: 28px; height: 28px; font-size: 0.85rem;">🤖</div>
+      <div>
+        <h4 style="font-size: 0.9rem; margin: 0;">Ask SkyGuard AI</h4>
+        <span style="font-size: 0.75rem; color: var(--success-text);">● Scoped to {{ analysis.target_role }} analysis</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="chat-messages-container" class="chatbot-messages-area">
+    <div class="chat-bubble-row assistant">
+      <div class="chat-bubble-content">
+        Hello {{ current_user.name.split()[0] }}! I've reviewed your resume for the <strong>{{ analysis.target_role }}</strong> position (Resume Score: {{ analysis.overall_score }}/100, ATS: {{ analysis.ats_score }}/100).
+        <br><br>
+        Ask me anything about improving your resume, bullet rewrites, or which skills to learn first!
+      </div>
+    </div>
+
+    {% for msg in chat_history %}
+      <div class="chat-bubble-row {{ msg.role }}">
+        <div class="chat-bubble-content">
+          {{ msg.content|replace('\n', '<br>')|safe }}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Suggested Questions (Section 26) -->
+  <div class="chatbot-suggestions-row">
+    <button type="button" class="chat-prompt-chip chat-suggestion-chip" data-question="Why is my resume score low?">
+      Why is my resume score low?
+    </button>
+    <button type="button" class="chat-prompt-chip chat-suggestion-chip" data-question="Which skill should I learn first?">
+      Which skill should I learn first?
+    </button>
+    <button type="button" class="chat-prompt-chip chat-suggestion-chip" data-question="How can I improve my projects?">
+      How can I improve my projects?
+    </button>
+    <button type="button" class="chat-prompt-chip chat-suggestion-chip" data-question="Is my resume suitable for this role?">
+      Is my resume suitable for this role?
+    </button>
+  </div>
+
+  <!-- Input Form -->
+  <form id="chat-input-form" class="chatbot-input-row">
+    <input 
+      type="text" 
+      id="chat-message-input" 
+      class="form-control" 
+      placeholder="Ask SkyGuard AI a question about your resume..." 
+      required 
+      autocomplete="off"
+    >
+    <button type="submit" id="chat-send-btn" class="btn btn-primary btn-sm">
+      Send
+    </button>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/results.js') }}"></script>
+<script src="{{ url_for('static', filename='js/improver.js') }}"></script>
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}

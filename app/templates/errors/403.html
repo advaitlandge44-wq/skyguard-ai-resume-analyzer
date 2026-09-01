@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}403 - Forbidden | SkyGuard AI{% endblock %}
+{% block content %}
+<div class="container-narrow" style="text-align: center; padding: 4rem 1rem;">
+  <div class="stat-value" style="color: var(--danger); font-size: 4rem; margin-bottom: 0.5rem;">403</div>
+  <h1 style="font-size: 1.75rem; margin-bottom: 0.75rem;">Access Denied</h1>
+  <p style="color: var(--text-secondary); max-width: 450px; margin: 0 auto 1.75rem;">
+    You do not have permission to access or modify this resume analysis record. Analyses are strictly private to their creator.
+  </p>
+  <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">Return to Dashboard</a>
+</div>
+{% endblock %}

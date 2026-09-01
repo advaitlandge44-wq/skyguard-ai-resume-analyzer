@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Career Roadmap - SkyGuard AI{% endblock %}
+{% block breadcrumb %}Career Roadmap{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/results.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header-block">
+  <div>
+    <h1 class="dashboard-greeting">Your Career Roadmap</h1>
+    {% if analysis %}
+      <p class="dashboard-subtext">
+        Sequenced skill progression path for <strong>{{ analysis.target_role }}</strong> based on your latest resume evaluation.
+      </p>
+    {% else %}
+      <p class="dashboard-subtext">Actionable phased learning milestones to bridge your technical skill gaps.</p>
+    {% endif %}
+  </div>
+
+  {% if analysis %}
+    <a href="{{ url_for('analysis.results', id=analysis.id) }}" class="btn btn-outline btn-sm">
+      View Full Analysis Report →
+    </a>
+  {% endif %}
+</div>
+
+{% if analysis and data.learning_roadmap %}
+  <div class="card" style="padding: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-subtle);">
+      <div>
+        <span class="badge badge-cyan" style="margin-bottom: 0.35rem;">Target Role</span>
+        <h3 style="font-size: 1.25rem;">{{ analysis.target_role }}</h3>
+      </div>
+      <div style="text-align: right;">
+        <span style="font-size: 0.8rem; color: var(--text-muted);">Current Job Match</span>
+        <div style="font-size: 1.3rem; font-weight: 800; color: var(--accent-cyan);">{{ analysis.job_match_score }}%</div>
+      </div>
+    </div>
+
+    <!-- Roadmap Timeline Cards -->
+    <div class="roadmap-timeline-wrapper">
+      {% for item in data.learning_roadmap %}
+        <div class="roadmap-card-item">
+          <div class="roadmap-step-badge">
+            0{{ loop.index }}
+          </div>
+          <div class="roadmap-content">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.25rem;">
+              <div class="roadmap-skill-name">{{ item.skill }}</div>
+              <span class="badge badge-primary" style="font-size: 0.75rem;">{{ item.order or item.week }}</span>
+            </div>
+            
+            <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.65rem;">
+              {{ item.why }}
+            </p>
+
+            {% if item.project_idea %}
+              <div class="roadmap-project-box">
+                <strong style="color: var(--accent-cyan); display: block; margin-bottom: 0.15rem;">🛠️ Suggested Project:</strong>
+                <span>{{ item.project_idea }}</span>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% else %}
+  <div class="empty-placeholder">
+    <div class="empty-placeholder-icon">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+        <line x1="8" y1="2" x2="8" y2="18"></line>
+        <line x1="16" y1="6" x2="16" y2="22"></line>
+      </svg>
+    </div>
+    <h3>No Roadmap Available Yet</h3>
+    <p>Upload a resume and choose your target job role to generate a personalized career roadmap.</p>
+    <a href="{{ url_for('resume.upload') }}" class="btn btn-cyan btn-lg">
+      <span>+ Analyze Resume & Build Roadmap</span>
+    </a>
+  </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - SkyGuard AI{% endblock %}
+{% block breadcrumb %}Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- Dashboard Header Greeting -->
+<div class="dashboard-header-block">
+  <div>
+    <h1 class="dashboard-greeting">Welcome, {{ user.name.split()[0] }}! 👋</h1>
+    <p class="dashboard-subtext">Ready to improve your resume? Track your ATS benchmarks and skill alignment below.</p>
+  </div>
+
+  <div style="display: flex; gap: 0.75rem;">
+    <a href="{{ url_for('resume.upload') }}" class="btn btn-cyan btn-lg">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      <span>Analyze New Resume</span>
+    </a>
+  </div>
+</div>
+
+<!-- 4 KPI Metrics Grid (Section 12) -->
+<div class="kpi-grid">
+  <!-- 1. Resume Score -->
+  <div class="kpi-card">
+    <div class="kpi-card-header">
+      <span class="kpi-title">Resume Score</span>
+      <div class="kpi-icon blue">📊</div>
+    </div>
+    <div class="kpi-value-row">
+      <span class="kpi-value">{% if latest_analysis %}{{ latest_analysis.overall_score }}{% else %}--{% endif %}</span>
+      <span class="kpi-denom">/100</span>
+    </div>
+    <span class="kpi-hint">
+      {% if latest_analysis %}
+        {% if latest_analysis.overall_score >= 80 %}
+          <span style="color: var(--success-text);">● Strong Profile Alignment</span>
+        {% else %}
+          <span style="color: var(--warning-text);">● Optimization Recommended</span>
+        {% endif %}
+      {% else %}
+        Awaiting first analysis
+      {% endif %}
+    </span>
+  </div>
+
+  <!-- 2. ATS Score -->
+  <div class="kpi-card">
+    <div class="kpi-card-header">
+      <span class="kpi-title">ATS Score</span>
+      <div class="kpi-icon emerald">🛡️</div>
+    </div>
+    <div class="kpi-value-row">
+      <span class="kpi-value">{% if latest_analysis %}{{ latest_analysis.ats_score }}{% else %}--{% endif %}</span>
+      <span class="kpi-denom">/100</span>
+    </div>
+    <span class="kpi-hint">
+      {% if latest_analysis %}
+        {% if latest_analysis.ats_score >= 80 %}
+          <span style="color: var(--success-text);">● High ATS Readability</span>
+        {% else %}
+          <span style="color: var(--warning-text);">● Parser Warnings Detected</span>
+        {% endif %}
+      {% else %}
+        Format & keyword audit
+      {% endif %}
+    </span>
+  </div>
+
+  <!-- 3. Job Match -->
+  <div class="kpi-card">
+    <div class="kpi-card-header">
+      <span class="kpi-title">Job Match</span>
+      <div class="kpi-icon cyan">🎯</div>
+    </div>
+    <div class="kpi-value-row">
+      <span class="kpi-value">{% if latest_analysis %}{{ latest_analysis.job_match_score }}{% else %}--{% endif %}</span>
+      <span class="kpi-denom">%</span>
+    </div>
+    <span class="kpi-hint">
+      {% if latest_analysis %}{{ latest_analysis.target_role }}{% else %}Target role alignment{% endif %}
+    </span>
+  </div>
+
+  <!-- 4. Total Analyses -->
+  <div class="kpi-card">
+    <div class="kpi-card-header">
+      <span class="kpi-title">Analyses</span>
+      <div class="kpi-icon purple">📁</div>
+    </div>
+    <div class="kpi-value-row">
+      <span class="kpi-value">{{ total_analyses }}</span>
+      <span class="kpi-denom">Total</span>
+    </div>
+    <span class="kpi-hint">Lifetime documents processed</span>
+  </div>
+</div>
+
+<!-- Skill Profile Section (Section 13) -->
+{% if latest_analysis and latest_data %}
+<div class="skills-profile-card">
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h3 style="font-size: 1.15rem; margin-bottom: 0.2rem;">Your Skill Profile</h3>
+      <p style="font-size: 0.85rem; color: var(--text-secondary);">
+        Synthesized from your latest resume for <strong>{{ latest_analysis.target_role }}</strong>
+      </p>
+    </div>
+    <a href="{{ url_for('analysis.results', id=latest_analysis.id) }}" class="btn btn-outline btn-sm">
+      View Full Matrix →
+    </a>
+  </div>
+
+  <div class="skills-split-grid">
+    <!-- Existing Skills -->
+    <div class="skill-category-box">
+      <div class="skill-category-header">
+        <span class="skill-category-title" style="color: var(--success-text);">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          Existing Skills ({{ latest_data.existing_skills|length }})
+        </span>
+        <span class="badge badge-success">Detected in Resume</span>
+      </div>
+
+      <div class="skills-pill-wrap">
+        {% for skill in latest_data.existing_skills %}
+          <span class="skill-badge-item existing">
+            ✓ {{ skill }}
+          </span>
+        {% else %}
+          <span style="color: var(--text-muted); font-size: 0.8rem;">No technical skills indexed.</span>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Missing Skills -->
+    <div class="skill-category-box">
+      <div class="skill-category-header">
+        <span class="skill-category-title" style="color: var(--warning-text);">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          Missing Target Skills ({{ latest_data.missing_skills|length }})
+        </span>
+        <span class="badge badge-warning">Recommended</span>
+      </div>
+
+      <div class="skills-pill-wrap">
+        {% for skill in latest_data.missing_skills %}
+          <span class="skill-badge-item missing">
+            + {{ skill }}
+          </span>
+        {% else %}
+          <span style="color: var(--success-text); font-size: 0.8rem;">All core role skills detected!</span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Recent Analyses Section -->
+<div>
+  <div class="section-title-row">
+    <div>
+      <h3 style="font-size: 1.15rem; margin-bottom: 0.2rem;">Recent Resume Analyses</h3>
+      <p style="font-size: 0.85rem; color: var(--text-secondary);">Your latest candidate diagnostic reports</p>
+    </div>
+    {% if total_analyses > 5 %}
+      <a href="{{ url_for('main.history') }}" class="btn btn-outline btn-sm">View All ({{ total_analyses }})</a>
+    {% endif %}
+  </div>
+
+  {% if recent_analyses %}
+    <div class="analyses-table-card">
+      {% for a in recent_analyses %}
+        <div class="history-card-item">
+          <div class="history-item-left">
+            <div class="kpi-icon cyan" style="width: 38px; height: 38px; font-size: 1.05rem;">📄</div>
+            <div>
+              <div class="history-role-name">{{ a.target_role }}</div>
+              <div class="history-meta-row">
+                <span>{{ a.resume.filename }}</span>
+                <span>•</span>
+                <span>{{ a.created_at.strftime('%b %d, %Y - %I:%M %p') }}</span>
+                {% if a.job_description %}
+                  <span>•</span>
+                  <span class="badge badge-cyan" style="font-size: 0.7rem;">Custom JD</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="history-scores-group">
+            <div class="mini-score-chip">
+              <span class="mini-score-label">Resume</span>
+              <span class="mini-score-val {% if a.overall_score >= 80 %}high{% elif a.overall_score >= 60 %}mid{% else %}low{% endif %}">
+                {{ a.overall_score }}
+              </span>
+            </div>
+
+            <div class="mini-score-chip">
+              <span class="mini-score-label">ATS</span>
+              <span class="mini-score-val {% if a.ats_score >= 80 %}high{% elif a.ats_score >= 60 %}mid{% else %}low{% endif %}">
+                {{ a.ats_score }}
+              </span>
+            </div>
+
+            <div class="mini-score-chip">
+              <span class="mini-score-label">Match</span>
+              <span class="mini-score-val {% if a.job_match_score >= 80 %}high{% elif a.job_match_score >= 60 %}mid{% else %}low{% endif %}">
+                {{ a.job_match_score }}%
+              </span>
+            </div>
+
+            <a href="{{ url_for('analysis.results', id=a.id) }}" class="btn btn-primary btn-sm" style="margin-left: 0.5rem;">
+              View Analysis →
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-placeholder">
+      <div class="empty-placeholder-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+        </svg>
+      </div>
+      <h3>No Resume Analyses Yet</h3>
+      <p>Upload your resume and choose your target job role to generate your first ATS diagnostic and career roadmap.</p>
+      <a href="{{ url_for('resume.upload') }}" class="btn btn-cyan btn-lg">
+        <span>+ Analyze First Resume</span>
+      </a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

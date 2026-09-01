@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Login - SkyGuard AI{% endblock %}
+
+{% block public_content %}
+<div class="container" style="padding: 3.5rem 1.5rem;">
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3.5rem; align-items: center; max-width: 960px; margin: 0 auto;">
+    
+    <!-- Left Column: Branding & Value Proposition -->
+    <div>
+      <div class="nav-brand" style="margin-bottom: 1.5rem;">
+        <div class="brand-icon" style="width: 40px; height: 40px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <span class="brand-text" style="font-size: 1.5rem;">SkyGuard <span>AI</span></span>
+      </div>
+
+      <h2 style="font-size: 2.2rem; line-height: 1.2; margin-bottom: 1rem; letter-spacing: -0.03em;">
+        Analyze Your Resume.<br>
+        <span style="color: var(--accent-cyan);">Build Your Career.</span>
+      </h2>
+
+      <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 2rem;">
+        Log in to access your saved resume evaluations, skill gap diagnostics, and customized career roadmaps.
+      </p>
+
+      <div style="display: flex; flex-direction: column; gap: 0.85rem; font-size: 0.85rem; color: var(--text-muted);">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="color: var(--success); font-weight: 700;">✓</span> Real-time ATS parser compatibility audit
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="color: var(--success); font-weight: 700;">✓</span> Role-specific skill gap diagnostics
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="color: var(--success); font-weight: 700;">✓</span> Zero-fabrication STAR bullet rewriter
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Login Card -->
+    <div>
+      <div class="card card-elevated" style="padding: 2.25rem 2rem;">
+        <div style="margin-bottom: 1.75rem;">
+          <h3 style="font-size: 1.35rem; margin-bottom: 0.35rem;">Sign In to SkyGuard</h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary);">Enter your credentials to access your account</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.login', next=request.args.get('next')) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+          <div class="form-group">
+            <label for="email" class="form-label">Email Address</label>
+            <input 
+              type="email" 
+              id="email" 
+              name="email" 
+              class="form-control" 
+              placeholder="name@example.com" 
+              value="{{ email or '' }}" 
+              required 
+              autocomplete="email"
+              autofocus
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="password" class="form-label">Password</label>
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              class="form-control" 
+              placeholder="••••••••" 
+              required 
+              autocomplete="current-password"
+            >
+          </div>
+
+          <div class="form-group" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <label style="display: flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; color: var(--text-secondary); cursor: pointer;">
+              <input type="checkbox" name="remember" style="accent-color: var(--primary);">
+              <span>Remember me for 7 days</span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+            <span>Sign In</span>
+          </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border-subtle); font-size: 0.85rem; color: var(--text-secondary);">
+          Don't have an account yet? 
+          <a href="{{ url_for('auth.register') }}" style="font-weight: 600; color: var(--accent-cyan);">Create an Account</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
