@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log In - SkyGuard AI</title>
+  <meta name="description" content="Log in to your SkyGuard AI account.">
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+          </svg>
+        </div>
+        <div class="brand-text">SkyGuard <span>AI</span></div>
+      </a>
+
+      <div class="nav-auth">
+        <a href="register.html" class="btn btn-cyan btn-sm">Create Account</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container" style="padding: 4rem 1.5rem 6rem; max-width: 480px;">
+    <div class="card card-elevated" style="padding: 2.5rem 2rem;">
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <span class="badge badge-cyan" style="margin-bottom: 0.5rem;">Secure Access</span>
+        <h1 style="font-size: 1.75rem; font-weight: 800; color: #ffffff;">Welcome Back</h1>
+        <p style="color: var(--text-secondary); font-size: 0.875rem;">Log in to access your resumes and reports.</p>
+      </div>
+
+      <div id="login-alert-area"></div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label for="email" class="form-label">Email Address</label>
+          <input type="email" id="email" name="email" class="form-control" placeholder="name@company.com" required autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem;">
+            <label for="password" class="form-label" style="margin-bottom: 0;">Password</label>
+            <a href="forgot_password.html" style="font-size: 0.775rem;">Forgot Password?</a>
+          </div>
+          <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+
+        <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;">
+          <input type="checkbox" id="remember" name="remember" style="accent-color: var(--accent-cyan);">
+          <label for="remember" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0; cursor: pointer;">Remember me for 7 days</label>
+        </div>
+
+        <button type="submit" id="login-btn" class="btn btn-cyan btn-lg" style="width: 100%;">
+          <span>Log In</span>
+        </button>
+      </form>
+
+      <div style="text-align: center; margin-top: 1.75rem; font-size: 0.85rem; color: var(--text-muted);">
+        Don't have an account? <a href="register.html" style="color: var(--accent-cyan); font-weight: 600;">Sign up for free</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const usp = new URLSearchParams(window.location.search);
+      const emailParam = usp.get('email');
+      if (emailParam) {
+        document.getElementById('email').value = emailParam;
+      }
+
+      const form = document.getElementById('login-form');
+      const btn = document.getElementById('login-btn');
+      const alertArea = document.getElementById('login-alert-area');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const remember = document.getElementById('remember').checked;
+
+        btn.disabled = true;
+        btn.textContent = 'Logging in...';
+        alertArea.innerHTML = '';
+
+        try {
+          const res = await window.SkyGuardAPI.auth.login(email, password, remember);
+          if (res && res.success) {
+            const next = usp.get('next') || 'dashboard.html';
+            window.location.href = next;
+          } else {
+            throw new Error((res && res.error) || 'Invalid email or password.');
+          }
+        } catch (err) {
+          alertArea.innerHTML = `
+            <div class="alert alert-danger" style="margin-bottom: 1.25rem;">
+              <span>${err.message || 'Invalid email or password. Please try again.'}</span>
+            </div>
+          `;
+          btn.disabled = false;
+          btn.textContent = 'Log In';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

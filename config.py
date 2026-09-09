@@ -37,9 +37,30 @@ class Config:
 
     # Security & Sessions
     SESSION_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_SAMESITE = 'Lax'
-    SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+    SESSION_COOKIE_SAMESITE = os.environ.get('SESSION_COOKIE_SAMESITE', 'Lax')
+    SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'false').lower() in ['true', '1', 't']
     PERMANENT_SESSION_LIFETIME = 86400 * 7  # 7 days
+
+    # CORS & Frontend Origins
+    FRONTEND_URL = os.environ.get('FRONTEND_URL', '').rstrip('/')
+    cors_env = os.environ.get('CORS_ORIGINS', '')
+    if cors_env:
+        CORS_ORIGINS = [origin.strip() for origin in cors_env.split(',') if origin.strip()]
+    else:
+        # Default development & preview origins
+        CORS_ORIGINS = [
+            'http://localhost:3000',
+            'http://127.0.0.1:3000',
+            'http://localhost:5000',
+            'http://127.0.0.1:5000',
+            'http://localhost:5500',
+            'http://127.0.0.1:5500',
+            'http://localhost:8080',
+            'http://127.0.0.1:8080',
+            'https://*.vercel.app'
+        ]
+        if FRONTEND_URL and FRONTEND_URL not in CORS_ORIGINS:
+            CORS_ORIGINS.append(FRONTEND_URL)
 
     # Rate Limiting
     RATELIMIT_DEFAULT = os.environ.get('RATELIMIT_DEFAULT', "100 per minute")
@@ -72,10 +93,12 @@ class TestingConfig(Config):
 
 
 class ProductionConfig(Config):
-    """Production configuration."""
+    """Production configuration for Render."""
     DEBUG = False
     TESTING = False
     SESSION_COOKIE_SECURE = True
+    # For cross-site cookie exchange between Vercel and Render in HTTPS
+    SESSION_COOKIE_SAMESITE = os.environ.get('SESSION_COOKIE_SAMESITE', 'None')
 
 
 config_by_name = {

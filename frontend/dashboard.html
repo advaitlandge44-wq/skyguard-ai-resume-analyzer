@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - SkyGuard AI</title>
+  <meta name="description" content="Manage your resume analyses, skill benchmarks, and career roadmaps.">
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+          </svg>
+        </div>
+        <div class="brand-text">SkyGuard <span>AI</span></div>
+      </a>
+
+      <ul class="nav-links" id="public-nav-links">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="dashboard.html" class="nav-link active">Dashboard</a></li>
+        <li><a href="roadmap.html" class="nav-link">Roadmap</a></li>
+        <li><a href="history.html" class="nav-link">History</a></li>
+        <li><a href="upload.html" class="nav-link" style="color: var(--accent-cyan);">+ New Scan</a></li>
+      </ul>
+
+      <div class="nav-auth">
+        <button onclick="handleLogout()" class="btn btn-ghost btn-sm" style="color: var(--danger-text);">Log Out</button>
+      </div>
+
+      <button class="mobile-toggle" id="public-mobile-toggle" aria-label="Toggle navigation">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+    </div>
+  </nav>
+
+  <div class="container" style="padding: 2.5rem 1.5rem 5rem;" id="dashboard-container">
+    <!-- Header -->
+    <div class="dashboard-header-block">
+      <div>
+        <h1 class="dashboard-greeting">Welcome back, <span id="dash-user-name" style="color: var(--accent-cyan);">Candidate</span></h1>
+        <p class="dashboard-subtext">Here is your resume analytics and career readiness summary.</p>
+      </div>
+      <div>
+        <a href="upload.html" class="btn btn-cyan">
+          <span>+ Upload New Resume</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 4 KPI Metrics Grid -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-card-header">
+          <span class="kpi-title">Total Analyses</span>
+          <div class="kpi-icon blue">📁</div>
+        </div>
+        <div class="kpi-value-row">
+          <span class="kpi-value" id="kpi-total">0</span>
+          <span class="kpi-denom">resumes</span>
+        </div>
+        <div class="kpi-hint">Evaluated candidates</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-card-header">
+          <span class="kpi-title">Average Overall</span>
+          <div class="kpi-icon cyan">⚡</div>
+        </div>
+        <div class="kpi-value-row">
+          <span class="kpi-value" id="kpi-avg-score">0</span>
+          <span class="kpi-denom">/ 100</span>
+        </div>
+        <div class="kpi-hint">Composite quality score</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-card-header">
+          <span class="kpi-title">Average ATS Score</span>
+          <div class="kpi-icon emerald">🛡️</div>
+        </div>
+        <div class="kpi-value-row">
+          <span class="kpi-value" id="kpi-avg-ats" style="color: var(--success-text);">0</span>
+          <span class="kpi-denom">/ 100</span>
+        </div>
+        <div class="kpi-hint">Parser readability rate</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-card-header">
+          <span class="kpi-title">Average Job Fit</span>
+          <div class="kpi-icon purple">🎯</div>
+        </div>
+        <div class="kpi-value-row">
+          <span class="kpi-value" id="kpi-avg-match" style="color: #c084fc;">0</span>
+          <span class="kpi-denom">%</span>
+        </div>
+        <div class="kpi-hint">Target competency match</div>
+      </div>
+    </div>
+
+    <!-- Recent Analyses Section -->
+    <div class="section-title-row">
+      <h2 style="font-size: 1.35rem; color: #ffffff;">Recent Resume Evaluations</h2>
+      <a href="history.html" style="font-size: 0.875rem;">View Full History →</a>
+    </div>
+
+    <div class="analyses-table-card" id="recent-analyses-container">
+      <div style="padding: 2.5rem; text-align: center; color: var(--text-muted);">
+        Loading your analyses from Render backend...
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const data = await window.SkyGuardAPI.dashboard.get();
+        if (data && data.success) {
+          if (data.user && data.user.name) {
+            document.getElementById('dash-user-name').textContent = data.user.name;
+          }
+          if (data.stats) {
+            document.getElementById('kpi-total').textContent = data.stats.total_analyses || 0;
+            document.getElementById('kpi-avg-score').textContent = data.stats.avg_resume_score || 0;
+            document.getElementById('kpi-avg-ats').textContent = data.stats.avg_ats_score || 0;
+            document.getElementById('kpi-avg-match').textContent = data.stats.avg_match_score || 0;
+          }
+
+          const container = document.getElementById('recent-analyses-container');
+          if (data.recent_analyses && data.recent_analyses.length > 0) {
+            container.innerHTML = data.recent_analyses.map(item => `
+              <a href="results.html?id=${item.id}" class="history-card-item">
+                <div class="history-item-left">
+                  <div style="width: 42px; height: 42px; border-radius: var(--radius-sm); background: rgba(0, 240, 255, 0.12); color: var(--accent-cyan); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                    📄
+                  </div>
+                  <div>
+                    <div class="history-role-name">${item.target_role || 'General Analysis'}</div>
+                    <div class="history-meta-row">
+                      <span>📅 ${item.created_at || 'Recently analyzed'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="history-scores-group">
+                  <div class="mini-score-chip">
+                    <span class="mini-score-label">Overall</span>
+                    <span class="mini-score-val high">${item.overall_score || 75}</span>
+                  </div>
+                  <div class="mini-score-chip">
+                    <span class="mini-score-label">ATS</span>
+                    <span class="mini-score-val high">${item.ats_score || 75}</span>
+                  </div>
+                  <div class="mini-score-chip">
+                    <span class="mini-score-label">Fit</span>
+                    <span class="mini-score-val mid">${item.job_match_score || 70}%</span>
+                  </div>
+                  <span class="btn btn-outline btn-sm">View Report →</span>
+                </div>
+              </a>
+            `).join('');
+          } else {
+            container.innerHTML = `
+              <div class="empty-placeholder">
+                <div class="empty-placeholder-icon">📄</div>
+                <h3>No Resumes Analyzed Yet</h3>
+                <p>Upload your first resume to see ATS score breakdowns and career learning paths.</p>
+                <a href="upload.html" class="btn btn-cyan btn-sm">Upload Resume Now</a>
+              </div>
+            `;
+          }
+        }
+      } catch (err) {
+        if (err.status === 401) {
+          window.location.href = 'login.html?next=dashboard.html';
+        } else {
+          document.getElementById('recent-analyses-container').innerHTML = `
+            <div class="empty-placeholder">
+              <div class="empty-placeholder-icon">⚠️</div>
+              <h3>Unable to Connect to Backend</h3>
+              <p>${err.message || 'Please check your Render backend status.'}</p>
+            </div>
+          `;
+        }
+      }
+    });
+
+    async function handleLogout() {
+      try {
+        await window.SkyGuardAPI.auth.logout();
+        window.location.href = 'login.html';
+      } catch(e) {
+        window.location.href = 'login.html';
+      }
+    }
+  </script>
+</body>
+</html>

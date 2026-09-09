@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload & Analyze Resume - SkyGuard AI</title>
+  <meta name="description" content="Upload your resume to get instant ATS scores, job fit analysis, and skill gap identification across 25 target job roles.">
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+          </svg>
+        </div>
+        <div class="brand-text">SkyGuard <span>AI</span></div>
+      </a>
+
+      <ul class="nav-links" id="public-nav-links">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+        <li><a href="roadmap.html" class="nav-link">Roadmap</a></li>
+        <li><a href="history.html" class="nav-link">History</a></li>
+        <li><a href="upload.html" class="nav-link active" style="color: var(--accent-cyan);">Upload</a></li>
+      </ul>
+
+      <div class="nav-auth" id="nav-auth-container">
+        <a href="login.html" class="btn btn-ghost btn-sm" id="nav-login-btn">Log In</a>
+        <a href="register.html" class="btn btn-cyan btn-sm" id="nav-register-btn">Sign Up</a>
+      </div>
+
+      <button class="mobile-toggle" id="public-mobile-toggle" aria-label="Toggle navigation">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+    </div>
+  </nav>
+
+  <div class="container" style="padding: 3rem 1.5rem 5rem;">
+    <div style="max-width: 820px; margin: 0 auto;">
+      <div class="dashboard-header-block" style="text-align: center; justify-content: center; flex-direction: column; align-items: center; margin-bottom: 2rem;">
+        <span class="badge badge-cyan" style="margin-bottom: 0.5rem;">AI Evaluation Pipeline</span>
+        <h1 class="dashboard-greeting" style="font-size: 2rem;">Upload Your Resume</h1>
+        <p class="dashboard-subtext">
+          Upload your resume, select your target job role from 25 high-demand profiles, and get comprehensive ATS feedback and skill gap analysis.
+        </p>
+      </div>
+
+      <div class="card card-elevated" style="padding: 2.25rem 2rem;">
+        <form id="resume-upload-form">
+          <!-- 1. Target Role Selection (25 Target Roles) -->
+          <div class="form-group">
+            <label for="target_role_select" class="form-label">
+              Target Job Role <span style="color: var(--danger-text);">*</span>
+            </label>
+            <select id="target_role_select" name="target_role_select" class="form-control form-select" required>
+              <option value="" disabled selected>Select one of 25 target job roles...</option>
+              <optgroup label="── Software & Web Engineering ──">
+                <option value="Software Developer">Software Developer</option>
+                <option value="Full Stack Developer">Full Stack Developer</option>
+                <option value="Frontend Developer">Frontend Developer</option>
+                <option value="Backend Developer">Backend Developer</option>
+                <option value="Python Developer">Python Developer</option>
+                <option value="Java Developer">Java Developer</option>
+                <option value="JavaScript Developer">JavaScript Developer</option>
+                <option value="React Developer">React Developer</option>
+                <option value="Mobile App Developer">Mobile App Developer</option>
+              </optgroup>
+              <optgroup label="── Data & Artificial Intelligence ──">
+                <option value="Data Analyst">Data Analyst</option>
+                <option value="Data Scientist">Data Scientist</option>
+                <option value="Machine Learning Engineer">Machine Learning Engineer</option>
+                <option value="AI Engineer">AI Engineer</option>
+                <option value="Generative AI Engineer">Generative AI Engineer</option>
+                <option value="NLP Engineer">NLP Engineer</option>
+                <option value="MLOps Engineer">MLOps Engineer</option>
+                <option value="AI/ML Research Engineer">AI/ML Research Engineer</option>
+              </optgroup>
+              <optgroup label="── Cloud, DevOps & Systems ──">
+                <option value="DevOps Engineer">DevOps Engineer</option>
+                <option value="Cloud Engineer">Cloud Engineer</option>
+                <option value="System Administrator">System Administrator</option>
+                <option value="Database Developer / DBA">Database Developer / DBA</option>
+              </optgroup>
+              <optgroup label="── Security, Quality & Analysis ──">
+                <option value="Cybersecurity Analyst">Cybersecurity Analyst</option>
+                <option value="QA / Software Testing Engineer">QA / Software Testing Engineer</option>
+                <option value="Business Analyst">Business Analyst</option>
+                <option value="UI/UX Designer">UI/UX Designer</option>
+              </optgroup>
+              <option value="custom">+ Enter Custom Role...</option>
+            </select>
+          </div>
+
+          <!-- Custom Role Input -->
+          <div id="custom-role-group" class="form-group" style="display: none;">
+            <label for="custom_role" class="form-label">Custom Job Title</label>
+            <input 
+              type="text" 
+              id="custom_role" 
+              name="custom_role" 
+              class="form-control" 
+              placeholder="e.g. Cloud Security Engineer, Data Platform Architect"
+            >
+          </div>
+
+          <!-- 2. Optional Job Description -->
+          <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem;">
+              <label for="job_description" class="form-label" style="margin-bottom: 0;">Paste Job Description <span style="color: var(--text-muted); font-weight: 400;">(Optional)</span></label>
+              <span style="font-size: 0.75rem; color: var(--accent-cyan);">Enables keyword match scoring</span>
+            </div>
+            <textarea 
+              id="job_description" 
+              name="job_description" 
+              class="form-control" 
+              rows="3" 
+              placeholder="Paste job posting requirements or qualifications here to compare your skills against exact requirements..."
+            ></textarea>
+          </div>
+
+          <!-- 3. Large Drag & Drop Upload Zone -->
+          <div class="form-group" style="margin-bottom: 2rem;">
+            <label class="form-label">Resume Document <span style="color: var(--danger-text);">*</span></label>
+            
+            <input 
+              type="file" 
+              id="resume_file" 
+              name="resume_file" 
+              accept=".pdf,.txt,application/pdf,text/plain" 
+              style="display: none;" 
+              required
+            >
+
+            <!-- Drop Zone UI -->
+            <div id="drop-zone" style="border: 2px dashed var(--border-card); border-radius: var(--radius-md); padding: 2.75rem 1.5rem; text-align: center; background: var(--bg-surface); cursor: pointer; transition: all var(--transition-normal);">
+              <div style="width: 48px; height: 48px; border-radius: var(--radius-full); background: rgba(59, 130, 246, 0.12); color: var(--primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+              </div>
+              <h4 style="font-size: 1.05rem; margin-bottom: 0.25rem;">Drag & drop your resume here</h4>
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem;">or click to browse from your device</p>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('resume_file').click();">
+                Browse Files
+              </button>
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem;">
+                Supported formats: PDF (.pdf) and Plain Text (.txt) • Maximum file size: 5MB
+              </div>
+            </div>
+
+            <!-- Selected File Preview -->
+            <div id="file-preview" style="display: none; align-items: center; justify-content: space-between; background: var(--bg-surface); border: 1px solid var(--border-hover); border-radius: var(--radius-sm); padding: 1rem 1.25rem; margin-top: 0.75rem;">
+              <div style="display: flex; align-items: center; gap: 0.85rem;">
+                <div style="width: 38px; height: 38px; border-radius: var(--radius-xs); background: rgba(16, 185, 129, 0.15); color: var(--success); display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                  ✓
+                </div>
+                <div>
+                  <div id="file-name" style="font-weight: 600; color: #ffffff; font-size: 0.95rem;">resume.pdf</div>
+                  <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem;">
+                    <span id="file-size" style="color: var(--text-muted);">1.2 MB</span>
+                    <span style="color: var(--text-muted);">•</span>
+                    <span style="color: var(--success-text); font-weight: 600;">✓ Ready for analysis</span>
+                  </div>
+                </div>
+              </div>
+              <button type="button" id="remove-file-btn" class="btn btn-ghost btn-sm" style="color: var(--danger-text);">
+                Change File
+              </button>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" id="upload-submit-btn" class="btn btn-cyan btn-lg" style="width: 100%;">
+            <span>Analyze Resume</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Animated Loading Overlay -->
+  <div id="analysis-loading-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(7, 9, 14, 0.92); backdrop-filter: blur(16px); z-index: 9999; align-items: center; justify-content: center;">
+    <div class="card card-elevated" style="padding: 2.75rem 2.25rem; text-align: center; max-width: 460px; width: 90%; border-color: rgba(0, 240, 255, 0.3); box-shadow: var(--shadow-lg);">
+      <div style="width: 52px; height: 52px; border: 3px solid rgba(255, 255, 255, 0.1); border-top-color: var(--accent-cyan); border-radius: var(--radius-full); animation: spinLoader 0.9s linear infinite; margin: 0 auto 1.5rem;"></div>
+
+      <h3 style="font-size: 1.35rem; margin-bottom: 0.35rem; color: #ffffff;">Analyzing your resume...</h3>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+        SkyGuard AI is examining document structure, keywords, and skill matches.
+      </p>
+
+      <!-- Checklist Progression Display -->
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1.15rem; text-align: left; display: flex; flex-direction: column; gap: 0.65rem; font-size: 0.85rem;">
+        <div id="step-1" style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted);">
+          <span class="step-status">◌</span>
+          <span>Extracting resume content</span>
+        </div>
+        <div id="step-2" style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted);">
+          <span class="step-status">◌</span>
+          <span>Identifying technical skills</span>
+        </div>
+        <div id="step-3" style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted);">
+          <span class="step-status">◌</span>
+          <span>Comparing job requirements</span>
+        </div>
+        <div id="step-4" style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted);">
+          <span class="step-status">◌</span>
+          <span>Generating career insights</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    @keyframes spinLoader {
+      to { transform: rotate(360deg); }
+    }
+    .drag-active {
+      border-color: var(--accent-cyan) !important;
+      background: rgba(0, 240, 255, 0.08) !important;
+    }
+  </style>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/upload.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const authData = await window.SkyGuardAPI.auth.me();
+        if (authData && authData.authenticated && authData.user) {
+          const authContainer = document.getElementById('nav-auth-container');
+          if (authContainer) {
+            authContainer.innerHTML = `
+              <a href="dashboard.html" class="btn btn-secondary btn-sm">Dashboard</a>
+              <button onclick="logoutUser()" class="btn btn-ghost btn-sm" style="color: var(--danger-text);">Log Out</button>
+            `;
+          }
+        }
+      } catch(e) {}
+    });
+
+    async function logoutUser() {
+      try {
+        await window.SkyGuardAPI.auth.logout();
+        window.location.href = 'login.html';
+      } catch(e) {
+        window.location.href = 'login.html';
+      }
+    }
+  </script>
+</body>
+</html>

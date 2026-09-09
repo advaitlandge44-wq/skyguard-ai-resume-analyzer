@@ -5,6 +5,12 @@ from flask_wtf.csrf import CSRFProtect
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
+try:
+    from flask_cors import CORS
+    cors = CORS()
+except ImportError:
+    cors = None
+
 from config import config_by_name
 from app.models import db, User
 
@@ -38,6 +44,17 @@ def create_app(config_name='default'):
     db.init_app(app)
     csrf.init_app(app)
     limiter.init_app(app)
+    
+    # Configure CORS for decoupled frontend deployment (e.g. Vercel)
+    if cors:
+        cors_origins = app.config.get('CORS_ORIGINS', '*')
+        cors.init_app(
+            app,
+            supports_credentials=True,
+            origins=cors_origins,
+            allow_headers=['Content-Type', 'X-CSRFToken', 'X-Requested-With', 'Authorization', 'Accept'],
+            methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+        )
 
     # User context loader before each request
     @app.before_request
@@ -79,6 +96,9 @@ def create_app(config_name='default'):
     from app.routes.resume import resume_bp
     from app.routes.analysis import analysis_bp
     from app.routes.api import api_bp
+
+    # Exempt REST API blueprint from CSRF form tokens for cross-origin API compatibility
+    csrf.exempt(api_bp)
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)

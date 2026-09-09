@@ -1,0 +1,386 @@
+/* SkyGuard AI - Luxury Dashboard, Library, and History Styles */
+
+.dashboard-header-block {
+  margin-bottom: 2.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.dashboard-greeting {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 0.35rem;
+  letter-spacing: -0.03em;
+}
+
+.dashboard-subtext {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+/* 4 KPI Metrics Grid with Subtle 3D Depth */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.25rem;
+}
+
+.kpi-card {
+  background: rgba(14, 20, 34, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  padding: 1.5rem 1.65rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all var(--transition-normal);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--gradient-primary);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.kpi-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(0, 240, 255, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 240, 255, 0.12);
+}
+
+.kpi-card:hover::before {
+  opacity: 1;
+}
+
+.kpi-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+}
+
+.kpi-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+
+.kpi-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.05);
+}
+
+.kpi-icon.blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+.kpi-icon.cyan { background: rgba(0, 240, 255, 0.15); color: var(--accent-cyan); border: 1px solid rgba(0, 240, 255, 0.3); }
+.kpi-icon.emerald { background: rgba(16, 185, 129, 0.15); color: var(--success-text); border: 1px solid rgba(16, 185, 129, 0.3); }
+.kpi-icon.purple { background: rgba(139, 92, 246, 0.15); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.3); }
+
+.kpi-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.kpi-value {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+}
+
+.kpi-denom {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.kpi-hint {
+  font-size: 0.775rem;
+  color: var(--text-muted);
+  margin-top: 0.65rem;
+}
+
+/* Skill Profile Section (Section 13) */
+.skills-profile-card {
+  background: rgba(12, 17, 29, 0.8);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  margin-bottom: 2.25rem;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.4);
+}
+
+.skills-split-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1.35rem;
+}
+
+.skill-category-box {
+  background: rgba(18, 25, 42, 0.7);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 1.35rem;
+}
+
+.skill-category-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.skill-category-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.skills-pill-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.skill-badge-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.825rem;
+  font-weight: 600;
+  border-radius: var(--radius-xs);
+  transition: all var(--transition-fast);
+}
+
+.skill-badge-item.existing {
+  background: var(--success-bg);
+  color: var(--success-text);
+  border: 1px solid var(--success-border);
+}
+
+.skill-badge-item.missing {
+  background: var(--warning-bg);
+  color: var(--warning-text);
+  border: 1px solid var(--warning-border);
+}
+
+/* Recent Analyses & History List */
+.section-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.15rem;
+}
+
+.analyses-table-card {
+  background: rgba(12, 17, 29, 0.8);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 2.25rem;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.4);
+}
+
+.history-card-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.35rem 1.65rem;
+  border-bottom: 1px solid var(--border-subtle);
+  transition: all var(--transition-fast);
+  text-decoration: none;
+}
+
+.history-card-item:last-child {
+  border-bottom: none;
+}
+
+.history-card-item:hover {
+  background: rgba(22, 31, 52, 0.85);
+  border-color: rgba(0, 240, 255, 0.3);
+}
+
+.history-item-left {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.history-role-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.25rem;
+}
+
+.history-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  font-size: 0.825rem;
+  color: var(--text-muted);
+}
+
+.history-scores-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mini-score-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(18, 25, 42, 0.9);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-xs);
+  padding: 0.35rem 0.75rem;
+  min-width: 68px;
+}
+
+.mini-score-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.mini-score-val {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.mini-score-val.high { color: var(--success-text); }
+.mini-score-val.mid { color: var(--warning-text); }
+.mini-score-val.low { color: var(--danger-text); }
+
+/* Empty States */
+.empty-placeholder {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: rgba(12, 17, 29, 0.7);
+  backdrop-filter: blur(14px);
+  border: 1px dashed var(--border-card);
+  border-radius: var(--radius-lg);
+}
+
+.empty-placeholder-icon {
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 1.25rem;
+  color: var(--accent-cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 240, 255, 0.1);
+  border-radius: 50%;
+  border: 1px solid rgba(0, 240, 255, 0.3);
+}
+
+.empty-placeholder h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.45rem;
+  color: #ffffff;
+}
+
+.empty-placeholder p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  max-width: 440px;
+  margin: 0 auto 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .skills-split-grid {
+    grid-template-columns: 1fr;
+  }
+  .history-card-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .history-scores-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+/* Dashboard Learning & Career Section */
+.dashboard-learning-card {
+  background: rgba(12, 17, 29, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  margin-bottom: 2.25rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-learning-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-cyan), var(--primary), #8b5cf6);
+}
+
+.learning-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.learning-mini-card {
+  background: rgba(18, 25, 42, 0.8);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 1.15rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all var(--transition-fast);
+}
+
+.learning-mini-card:hover {
+  border-color: var(--accent-cyan);
+  transform: translateY(-2px);
+}
+

@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resume Analysis Results - SkyGuard AI</title>
+  <meta name="description" content="Interactive AI resume evaluation results, ATS score audit, skill gap breakdown, and career learning roadmap.">
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/results.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+          </svg>
+        </div>
+        <div class="brand-text">SkyGuard <span>AI</span></div>
+      </a>
+
+      <ul class="nav-links" id="public-nav-links">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+        <li><a href="roadmap.html" class="nav-link">Roadmap</a></li>
+        <li><a href="history.html" class="nav-link">History</a></li>
+        <li><a href="upload.html" class="nav-link">Upload New</a></li>
+      </ul>
+
+      <div class="nav-auth" id="nav-auth-container">
+        <a href="dashboard.html" class="btn btn-secondary btn-sm">Dashboard</a>
+      </div>
+
+      <button class="mobile-toggle" id="public-mobile-toggle" aria-label="Toggle navigation">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- SVG Gradient Definitions -->
+  <svg width="0" height="0" style="position: absolute; pointer-events: none;">
+    <defs>
+      <linearGradient id="meterGradCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#00f0ff" />
+        <stop offset="100%" stop-color="#3b82f6" />
+      </linearGradient>
+      <linearGradient id="meterGradEmerald" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#10b981" />
+        <stop offset="100%" stop-color="#34d399" />
+      </linearGradient>
+      <linearGradient id="meterGradPurple" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#8b5cf6" />
+        <stop offset="100%" stop-color="#ec4899" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <div class="container" style="padding: 2.5rem 1.5rem 5rem;" id="dynamic-results-view">
+    <!-- Header Area -->
+    <div class="results-page-header">
+      <div class="results-title-area">
+        <div class="role-pill-badge">
+          <span>🎯 Target Role:</span>
+          <strong id="results-target-role-text">Software Engineer</strong>
+        </div>
+        <h1 style="font-size: 2.25rem; font-weight: 800; color: #ffffff;">Resume Analysis Diagnostic</h1>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">
+          Algorithmic evaluation of technical clarity, keyword density, ATS parsability, and candidate fit.
+        </p>
+      </div>
+
+      <div class="results-header-actions">
+        <button type="button" class="btn btn-secondary btn-sm" id="export-pdf-btn">
+          <span>🖨️ Export PDF / Print</span>
+        </button>
+        <a href="upload.html" class="btn btn-cyan btn-sm">
+          <span>+ Analyze Another Resume</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 3 Circular Score Metric Cards -->
+    <div class="top-metrics-grid">
+      <!-- 1. Overall Score -->
+      <div class="metric-meter-card overall">
+        <div class="meter-card-label">Overall Resume Score</div>
+        <div class="radial-svg-wrap">
+          <svg class="radial-svg" viewBox="0 0 120 120">
+            <circle class="radial-bg-circle" />
+            <circle class="radial-bar-circle gauge-circle-progress" id="gauge-overall" data-score="84" stroke="url(#meterGradCyan)" stroke-dasharray="301.59" stroke-dashoffset="301.59" />
+          </svg>
+          <div class="radial-val-center">
+            <span class="count-up" id="overall-score-num" data-target="84">0</span>
+            <small>/100</small>
+          </div>
+        </div>
+        <div class="meter-card-desc">Composite quality benchmark</div>
+      </div>
+
+      <!-- 2. ATS Score -->
+      <div class="metric-meter-card ats">
+        <div class="meter-card-label">ATS Readability Score</div>
+        <div class="radial-svg-wrap">
+          <svg class="radial-svg" viewBox="0 0 120 120">
+            <circle class="radial-bg-circle" />
+            <circle class="radial-bar-circle gauge-circle-progress" id="gauge-ats" data-score="86" stroke="url(#meterGradEmerald)" stroke-dasharray="301.59" stroke-dashoffset="301.59" />
+          </svg>
+          <div class="radial-val-center">
+            <span class="count-up" id="ats-score-num" data-target="86" style="color: var(--success-text);">0</span>
+            <small>/100</small>
+          </div>
+        </div>
+        <div class="meter-card-desc">Parser readability & keywords</div>
+      </div>
+
+      <!-- 3. Job Match Score -->
+      <div class="metric-meter-card match">
+        <div class="meter-card-label">Target Role Match</div>
+        <div class="radial-svg-wrap">
+          <svg class="radial-svg" viewBox="0 0 120 120">
+            <circle class="radial-bg-circle" />
+            <circle class="radial-bar-circle gauge-circle-progress" id="gauge-match" data-score="78" stroke="url(#meterGradPurple)" stroke-dasharray="301.59" stroke-dashoffset="301.59" />
+          </svg>
+          <div class="radial-val-center">
+            <span class="count-up" id="match-score-num" data-target="78" style="color: #c084fc;">0</span>
+            <small>%</small>
+          </div>
+        </div>
+        <div class="meter-card-desc">Skill & competency alignment</div>
+      </div>
+    </div>
+
+    <!-- AI Summary Card -->
+    <div class="summary-card">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+        <h3 style="font-size: 1.15rem; color: #ffffff; display: flex; align-items: center; gap: 0.5rem;">
+          <span>🤖 AI Executive Evaluation</span>
+        </h3>
+        <span class="badge badge-cyan">Automated Diagnostic</span>
+      </div>
+      <p class="summary-body" id="results-summary-text">
+        The candidate demonstrates solid software engineering fundamentals with strong hands-on Python and backend development capabilities. Adding Docker, AWS cloud orchestration, and automated CI/CD metrics will elevate this profile into the top 5% candidate tier.
+      </p>
+    </div>
+
+    <!-- Strengths & Missing Skills Grid -->
+    <div class="results-2col-grid">
+      <!-- Strengths -->
+      <div class="card">
+        <h3 style="font-size: 1.1rem; margin-bottom: 1.25rem; color: #ffffff; display: flex; align-items: center; gap: 0.5rem;">
+          <span style="color: var(--success-text);">✓</span> Identified Strengths
+        </h3>
+        <div id="strengths-list">
+          <div class="strength-card-item">
+            <span>✓</span>
+            <div><strong>Strong Core Toolset:</strong> Solid practical grounding in Python, SQL, and Flask microservices.</div>
+          </div>
+          <div class="strength-card-item">
+            <span>✓</span>
+            <div><strong>Production Experience:</strong> Quantified achievements with high throughput and reliable uptime.</div>
+          </div>
+          <div class="strength-card-item">
+            <span>✓</span>
+            <div><strong>ATS Parsable Structure:</strong> Standard headers and clean font hierarchy allow automated parsing.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Missing Skills -->
+      <div class="card">
+        <h3 style="font-size: 1.1rem; margin-bottom: 1.25rem; color: #ffffff; display: flex; align-items: center; gap: 0.5rem;">
+          <span style="color: var(--warning-text);">⚡</span> High-Impact Skill Gaps
+        </h3>
+        <div id="missing-skills-list">
+          <div class="missing-skill-item">
+            <div>
+              <div class="missing-skill-name">Docker & Containerization</div>
+              <div class="missing-skill-why">Crucial requirement for cloud deployments and microservice standardization.</div>
+            </div>
+            <span class="badge badge-warning">+42% Match</span>
+          </div>
+          <div class="missing-skill-item">
+            <div>
+              <div class="missing-skill-name">AWS Cloud Infrastructure</div>
+              <div class="missing-skill-why">Deploying resilient architectures onto ECS, S3, RDS, and Lambda.</div>
+            </div>
+            <span class="badge badge-warning">+38% Demand</span>
+          </div>
+          <div class="missing-skill-item">
+            <div>
+              <div class="missing-skill-name">RESTful APIs & OpenAPI</div>
+              <div class="missing-skill-why">Building scalable contracts and integrating modern client architectures.</div>
+            </div>
+            <span class="badge badge-warning">Core Req</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Role-Aware Learning Roadmap & Resources -->
+    <div class="learning-plan-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <span class="badge badge-purple" style="margin-bottom: 0.35rem;">Skill Roadmap Engine</span>
+          <h2 style="font-size: 1.65rem; font-weight: 800; color: #ffffff; letter-spacing: -0.02em;">Role-Specific Learning Plan</h2>
+        </div>
+        <a href="roadmap.html" class="btn btn-outline btn-sm">Full 4-Quarter Roadmap →</a>
+      </div>
+
+      <div class="learning-grid">
+        <!-- Resource Card 1 -->
+        <div class="resource-card">
+          <div>
+            <div class="resource-card-top">
+              <div class="resource-skill-title">Docker Containerization</div>
+              <div class="resource-meta-badges">
+                <span class="badge-time">⏱ 2-3 Weeks</span>
+                <span class="badge-diff beginner">Beginner</span>
+              </div>
+            </div>
+            <p class="resource-why">Containerize microservices, create multi-stage Dockerfiles, and compose multi-container environments.</p>
+            <div class="resource-actions">
+              <a href="https://www.youtube.com/results?search_query=Docker+tutorial+for+beginners" target="_blank" rel="noopener" class="btn-learn-lang english">
+                <span>🇬🇧 Learn English</span>
+              </a>
+              <a href="https://www.youtube.com/results?search_query=Docker+tutorial+in+hindi" target="_blank" rel="noopener" class="btn-learn-lang hinglish">
+                <span>🇮🇳 Learn Hinglish</span>
+              </a>
+            </div>
+          </div>
+          <div class="project-box-item">
+            <strong>🚀 Capstone Project:</strong> Containerized REST API with Redis Cache & Docker Compose.
+          </div>
+        </div>
+
+        <!-- Resource Card 2 -->
+        <div class="resource-card">
+          <div>
+            <div class="resource-card-top">
+              <div class="resource-skill-title">AWS Cloud Architecture</div>
+              <div class="resource-meta-badges">
+                <span class="badge-time">⏱ 3-4 Weeks</span>
+                <span class="badge-diff intermediate">Intermediate</span>
+              </div>
+            </div>
+            <p class="resource-why">Deploy scalable applications using AWS ECS, RDS PostgreSQL, and S3 asset storage.</p>
+            <div class="resource-actions">
+              <a href="https://www.youtube.com/results?search_query=AWS+cloud+practitioner+full+course" target="_blank" rel="noopener" class="btn-learn-lang english">
+                <span>🇬🇧 Learn English</span>
+              </a>
+              <a href="https://www.youtube.com/results?search_query=AWS+course+in+hindi" target="_blank" rel="noopener" class="btn-learn-lang hinglish">
+                <span>🇮🇳 Learn Hinglish</span>
+              </a>
+            </div>
+          </div>
+          <div class="project-box-item">
+            <strong>🚀 Capstone Project:</strong> Cloud-native deployment with health checks & Auto-Scaling.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Resume Improver Tool Card -->
+    <div class="improver-tool-card" id="improver-section">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+        <div>
+          <span class="badge badge-cyan" style="margin-bottom: 0.35rem;">STAR Impact Rewriter</span>
+          <h2 style="font-size: 1.45rem; font-weight: 800; color: #ffffff;">AI Resume Bullet Enhancer</h2>
+          <p style="color: var(--text-secondary); font-size: 0.85rem;">Transform weak responsibility statements into quantified accomplishments.</p>
+        </div>
+      </div>
+
+      <form id="bullet-improver-form">
+        <input type="hidden" id="improver-target-role" value="Software Engineer">
+        <div class="form-group">
+          <label for="improver-bullet-input" class="form-label">Enter a weak resume bullet point:</label>
+          <div style="display: flex; gap: 0.75rem;">
+            <input 
+              type="text" 
+              id="improver-bullet-input" 
+              class="form-control" 
+              placeholder="e.g. Worked on the backend APIs and helped fix bugs." 
+              required
+            >
+            <button type="submit" id="improve-btn" class="btn btn-cyan" style="flex-shrink: 0;">
+              <span>✨ Enhance Bullet</span>
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
+        <button type="button" class="chat-prompt-chip sample-pill-btn" data-sample="Managed database queries and reduced latency.">💡 "Managed database queries and reduced latency."</button>
+        <button type="button" class="chat-prompt-chip sample-pill-btn" data-sample="Built user authentication and login pages.">💡 "Built user authentication and login pages."</button>
+      </div>
+
+      <div id="improver-result-area" style="display: none; margin-top: 1.5rem;">
+        <div class="improver-split-boxes">
+          <div class="improver-panel">
+            <div class="improver-panel-header" style="color: var(--danger-text);">✕ Original Draft</div>
+            <p id="improver-original-text" style="color: var(--text-secondary); font-size: 0.9rem; font-style: italic;"></p>
+          </div>
+
+          <div class="improver-panel enhanced">
+            <div class="improver-panel-header" style="color: var(--accent-cyan);">✓ Enhanced STAR Impact Version</div>
+            <p id="improver-improved-text" style="color: #ffffff; font-size: 0.95rem; font-weight: 500;"></p>
+            <div style="margin-top: 0.85rem;">
+              <button type="button" id="copy-improved-btn" class="btn btn-secondary btn-sm">📋 Copy to Clipboard</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Career Assistant Chatbot Drawer -->
+    <div class="chatbot-card">
+      <div class="chatbot-header">
+        <div style="display: flex; align-items: center; gap: 0.65rem;">
+          <div class="chat-avatar-badge assistant">AI</div>
+          <div>
+            <div style="font-size: 0.95rem; font-weight: 700; color: #ffffff;">SkyGuard Career Assistant</div>
+            <div style="font-size: 0.75rem; color: var(--accent-cyan);">Context: Active Resume Diagnostic</div>
+          </div>
+        </div>
+      </div>
+
+      <input type="hidden" id="chat-analysis-id" value="">
+
+      <div class="chatbot-messages-area" id="chat-messages-container">
+        <div class="chat-bubble-row assistant">
+          <div class="chat-avatar-badge assistant">AI</div>
+          <div class="chat-bubble-content">
+            Hello! I have analyzed your resume against your target role. How can I assist you with interview preparation, portfolio projects, or ATS optimization?
+          </div>
+        </div>
+      </div>
+
+      <div class="chatbot-suggestions-row">
+        <button type="button" class="chat-suggestion-chip chat-prompt-chip" data-question="How can I improve my ATS score to 90+?">📈 How can I reach 90+ ATS score?</button>
+        <button type="button" class="chat-suggestion-chip chat-prompt-chip" data-question="What are 3 project ideas for this role?">💡 3 Portfolio project ideas</button>
+        <button type="button" class="chat-suggestion-chip chat-prompt-chip" data-question="What technical interview questions should I practice?">🎯 Top interview questions</button>
+      </div>
+
+      <form id="chat-input-form" class="chatbot-input-row">
+        <input 
+          type="text" 
+          id="chat-message-input" 
+          class="form-control" 
+          placeholder="Ask SkyGuard AI about your resume, skill gaps, or interview strategy..." 
+          autocomplete="off"
+        >
+        <button type="submit" id="chat-send-btn" class="btn btn-cyan">
+          <span>Send</span>
+        </button>
+      </form>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/results.js"></script>
+  <script src="js/improver.js"></script>
+  <script src="js/chat.js"></script>
+</body>
+</html>

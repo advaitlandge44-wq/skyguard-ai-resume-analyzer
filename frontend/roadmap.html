@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Career Roadmap - SkyGuard AI</title>
+  <meta name="description" content="Personalized 4-quarter career progression path, recommended skill milestones, and portfolio project guides.">
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/results.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+          </svg>
+        </div>
+        <div class="brand-text">SkyGuard <span>AI</span></div>
+      </a>
+
+      <ul class="nav-links" id="public-nav-links">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+        <li><a href="roadmap.html" class="nav-link active">Roadmap</a></li>
+        <li><a href="history.html" class="nav-link">History</a></li>
+        <li><a href="upload.html" class="nav-link" style="color: var(--accent-cyan);">+ New Scan</a></li>
+      </ul>
+
+      <div class="nav-auth">
+        <a href="dashboard.html" class="btn btn-secondary btn-sm">Dashboard</a>
+      </div>
+
+      <button class="mobile-toggle" id="public-mobile-toggle" aria-label="Toggle navigation">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+    </div>
+  </nav>
+
+  <div class="container" style="padding: 2.5rem 1.5rem 5rem;">
+    <div class="dashboard-header-block">
+      <div>
+        <span class="badge badge-purple" style="margin-bottom: 0.5rem;">Autonomous Career Engine</span>
+        <h1 class="dashboard-greeting">4-Quarter Career Learning Roadmap</h1>
+        <p class="dashboard-subtext">Sequenced milestone roadmap designed to close your skill gaps for your target job role.</p>
+      </div>
+      <div>
+        <a href="upload.html" class="btn btn-cyan">+ Scan New Target Role</a>
+      </div>
+    </div>
+
+    <!-- Career Orbit Section -->
+    <div class="career-orbit-container" style="margin-bottom: 2.5rem;">
+      <div class="orbit-center-node">
+        <span>YOU</span>
+      </div>
+
+      <div class="orbit-ring-inner">
+        <div class="orbit-node-item current" style="top: -12px; left: 50%; transform: translateX(-50%);">
+          <span>✓ Python</span>
+        </div>
+        <div class="orbit-node-item current" style="bottom: 25px; left: -10px;">
+          <span>✓ SQL</span>
+        </div>
+        <div class="orbit-node-item current" style="bottom: 25px; right: -10px;">
+          <span>✓ Web APIs</span>
+        </div>
+      </div>
+
+      <div class="orbit-ring-outer">
+        <div class="orbit-node-item missing" style="top: 20px; left: 10px;">
+          <span>+ Docker</span>
+        </div>
+        <div class="orbit-node-item missing" style="top: 20px; right: 10px;">
+          <span>+ AWS Cloud</span>
+        </div>
+        <div class="orbit-node-item missing" style="bottom: -15px; left: 50%; transform: translateX(-50%);">
+          <span>+ Microservices</span>
+        </div>
+      </div>
+
+      <div class="orbit-node-item target" style="top: 25px; right: 30px;">
+        <span id="roadmap-target-title">🎯 Target: Senior Software Engineer</span>
+      </div>
+    </div>
+
+    <!-- 4 Quarter Roadmap Timeline -->
+    <div class="roadmap-timeline">
+      <!-- Q1 -->
+      <div class="roadmap-step-item">
+        <div class="roadmap-step-icon" style="border-color: var(--success); color: var(--success-text);">Q1</div>
+        <div class="roadmap-step-content">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <h3 style="font-size: 1.15rem; color: #ffffff;">Quarter 1: Core Fundamentals & Containerization</h3>
+            <span class="badge badge-success">Completed Baseline</span>
+          </div>
+          <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+            Master backend programming languages, modular code structuring, database schemas, and containerization.
+          </p>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <span class="badge badge-neutral">Docker</span>
+            <span class="badge badge-neutral">Python / SQL</span>
+            <span class="badge badge-neutral">Project: REST API Service</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="roadmap-step-item">
+        <div class="roadmap-step-icon" style="border-color: var(--accent-cyan); color: var(--accent-cyan);">Q2</div>
+        <div class="roadmap-step-content">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <h3 style="font-size: 1.15rem; color: #ffffff;">Quarter 2: Cloud Infrastructure & Database Optimization</h3>
+            <span class="badge badge-cyan">In Progress</span>
+          </div>
+          <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+            Deploy applications to AWS (ECS, S3, RDS), optimize slow SQL queries with indexing, and configure Redis caching.
+          </p>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <span class="badge badge-cyan">AWS Cloud</span>
+            <span class="badge badge-cyan">Redis Caching</span>
+            <span class="badge badge-neutral">Project: High-Throughput Service</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="roadmap-step-item">
+        <div class="roadmap-step-icon" style="border-color: var(--primary); color: #60a5fa;">Q3</div>
+        <div class="roadmap-step-content">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <h3 style="font-size: 1.15rem; color: #ffffff;">Quarter 3: System Design & Microservices</h3>
+            <span class="badge badge-primary">Upcoming</span>
+          </div>
+          <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+            Asynchronous event processing with message brokers (Kafka/RabbitMQ), rate limiting, and observability.
+          </p>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <span class="badge badge-primary">Event Brokers</span>
+            <span class="badge badge-primary">System Design</span>
+            <span class="badge badge-neutral">Project: Distributed Event Stream</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="roadmap-step-item">
+        <div class="roadmap-step-icon" style="border-color: var(--accent-purple); color: #c084fc;">Q4</div>
+        <div class="roadmap-step-content">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <h3 style="font-size: 1.15rem; color: #ffffff;">Quarter 4: Interview Preparation & Portfolio Mastery</h3>
+            <span class="badge badge-purple">Goal Target</span>
+          </div>
+          <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+            Live behavioral and system design interview mock sessions, STAR bullet point fine-tuning, and recruiter outreach.
+          </p>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <span class="badge badge-success">Top 5% Candidate Fit</span>
+            <span class="badge badge-cyan">Compensation: $140k+</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

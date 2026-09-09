@@ -1,0 +1,6 @@
+ALEX MORGAN
+Senior Backend Developer
+Skills: Python, Flask, SQL, Docker, AWS, PostgreSQL, Redis, REST APIs
+Experience: Built microservices handling 25,000 requests per second with 99.99% uptime.
+Projects: Automated CI/CD deployment pipelines using GitHub Actions and Docker Compose.
+Education: Bachelor of Science in Computer Science.

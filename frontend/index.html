@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkyGuard AI - Next-Gen Resume Analyzer & Career Assistant</title>
+  <meta name="description" content="AI-Powered Resume Intelligence. Understand your resume, discover missing skills, improve your ATS score, and build a smarter career path.">
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Core CSS Design System -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+  <!-- Neural Network Background Canvas -->
+  <canvas id="neural-bg-canvas"></canvas>
+
+  <!-- SVG Gradient Definitions for Progress Meters -->
+  <svg width="0" height="0" style="position: absolute; pointer-events: none;">
+    <defs>
+      <linearGradient id="meterGradCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#00f0ff" />
+        <stop offset="100%" stop-color="#3b82f6" />
+      </linearGradient>
+      <linearGradient id="meterGradEmerald" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#10b981" />
+        <stop offset="100%" stop-color="#34d399" />
+      </linearGradient>
+      <linearGradient id="meterGradPurple" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#8b5cf6" />
+        <stop offset="100%" stop-color="#ec4899" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <!-- Navbar -->
+  <nav class="navbar" id="public-navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+          </svg>
+        </div>
+        <div class="brand-text">SkyGuard <span>AI</span></div>
+      </a>
+
+      <ul class="nav-links" id="public-nav-links">
+        <li><a href="#features" class="nav-link">Features</a></li>
+        <li><a href="#scores" class="nav-link">Scores</a></li>
+        <li><a href="#skill-gap" class="nav-link">Skill Gap</a></li>
+        <li><a href="#job-match" class="nav-link">Job Match</a></li>
+        <li><a href="#roadmap" class="nav-link">Roadmap</a></li>
+        <li><a href="upload.html" class="nav-link" style="color: var(--accent-cyan); font-weight: 600;">Upload</a></li>
+      </ul>
+
+      <div class="nav-auth" id="nav-auth-container">
+        <!-- Dynamic auth state populated by JS -->
+        <a href="login.html" class="btn btn-ghost btn-sm" id="nav-login-btn">Log In</a>
+        <a href="register.html" class="btn btn-cyan btn-sm" id="nav-register-btn">Get Started</a>
+      </div>
+
+      <button class="mobile-toggle" id="public-mobile-toggle" aria-label="Toggle navigation">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <div class="container" style="overflow: hidden; position: relative; z-index: 1;">
+
+    <!-- ========================================================
+         SECTION 1: HERO - 3D RESUME FLOATING IN SPACE
+         ======================================================== -->
+    <section id="hero" style="padding: 4.5rem 0 4rem; position: relative;">
+      <div style="position: absolute; top: -10%; left: 30%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(0, 240, 255, 0.12) 0%, transparent 70%); filter: blur(60px); pointer-events: none; z-index: 0;"></div>
+      
+      <div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 3.5rem; align-items: center; position: relative; z-index: 1;">
+        <!-- Hero Left -->
+        <div>
+          <div class="badge badge-cyan" style="margin-bottom: 1.5rem; font-size: 0.8rem; padding: 0.4rem 0.95rem; letter-spacing: 0.06em;">
+            <span class="pulse-dot"></span>
+            <span>AI-POWERED RESUME INTELLIGENCE</span>
+          </div>
+
+          <h1 style="font-size: 3.5rem; font-weight: 800; line-height: 1.1; margin-bottom: 1.35rem; letter-spacing: -0.04em;">
+            Analyze Your Resume.<br>
+            <span style="background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Build Your Career.</span>
+          </h1>
+
+          <p style="font-size: 1.15rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 2.25rem; max-width: 520px;">
+            Understand your resume, discover missing skills, improve your ATS score, and build a smarter career path with AI.
+          </p>
+
+          <div style="display: flex; align-items: center; gap: 1.15rem; flex-wrap: wrap;" id="hero-cta-group">
+            <div class="magnetic-btn-wrap">
+              <a href="upload.html" class="btn btn-cyan btn-lg btn-magnetic" style="box-shadow: 0 4px 20px rgba(0, 240, 255, 0.4);">
+                <span>Analyze My Resume →</span>
+              </a>
+            </div>
+            <a href="results.html?demo=true" class="btn btn-secondary btn-lg" id="hero-demo-link">
+              <span>View Interactive Demo</span>
+            </a>
+          </div>
+
+          <!-- Trust & Tech Badges -->
+          <div style="display: flex; align-items: center; gap: 1.75rem; margin-top: 2.75rem; font-size: 0.825rem; color: var(--text-muted); flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.45rem;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span style="color: var(--text-secondary);">PyMuPDF Engine</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.45rem;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span style="color: var(--text-secondary);">Zero-Fabrication Rewrites</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.45rem;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span style="color: var(--text-secondary);">ATS Compatibility Audit</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero Right: 3D Holographic AI Resume Object -->
+        <div style="position: relative;">
+          <div class="hero-3d-wrapper" id="hero-3d-wrapper">
+            <!-- 3D Three.js WebGL Canvas -->
+            <div id="hero-3d-visual" class="hero-3d-canvas-container"></div>
+
+            <!-- Glass UI Card 1: AI ANALYSIS READY -->
+            <div class="floating-hero-pill pill-ai">
+              <span class="pulse-dot"></span>
+              <div>
+                <div style="font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.05em;">AI ANALYSIS</div>
+                <div style="font-size: 0.85rem; font-weight: 800; color: var(--accent-cyan);">READY</div>
+              </div>
+            </div>
+
+            <!-- Glass UI Card 2: ATS SCORE 86% -->
+            <div class="floating-hero-pill pill-ats">
+              <span style="color: var(--success-text); font-weight: 800; font-size: 1.1rem;">✓</span>
+              <div>
+                <div style="font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.05em;">ATS SCORE</div>
+                <div style="font-size: 0.95rem; font-weight: 800; color: #ffffff;">86% <span style="font-size: 0.725rem; color: var(--success-text); font-weight: 600;">PASS</span></div>
+              </div>
+            </div>
+
+            <!-- Glass UI Card 3: JOB MATCH 78% -->
+            <div class="floating-hero-pill pill-match">
+              <span style="color: var(--accent-cyan); font-size: 1.1rem;">🎯</span>
+              <div>
+                <div style="font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.05em;">JOB MATCH</div>
+                <div style="font-size: 0.95rem; font-weight: 800; color: var(--accent-cyan);">78% <span style="font-size: 0.725rem; color: var(--text-muted); font-weight: 500;">Fit</span></div>
+              </div>
+            </div>
+
+            <!-- Glass UI Card 4: SKILLS 8 / 12 -->
+            <div class="floating-hero-pill pill-skills">
+              <span style="color: var(--primary); font-size: 1.1rem;">🧩</span>
+              <div>
+                <div style="font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.05em;">SKILLS</div>
+                <div style="font-size: 0.95rem; font-weight: 800; color: #ffffff;">8 <span style="font-size: 0.75rem; color: var(--primary);">/ 12</span></div>
+              </div>
+            </div>
+
+            <!-- Glass UI Card 5: Missing Gap -->
+            <div class="floating-hero-pill pill-gap">
+              <span style="color: var(--warning-text); font-size: 0.95rem;">⚡</span>
+              <div>
+                <div style="font-size: 0.65rem; text-transform: uppercase; color: var(--warning-text); font-weight: 700; letter-spacing: 0.05em;">SKILL GAP</div>
+                <div style="font-size: 0.8rem; font-weight: 700; color: #ffffff;">Docker, AWS, REST APIs</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sequential AI Scanner Status Ticker -->
+          <div class="scan-terminal-card">
+            <div class="scan-terminal-header">
+              <span>[ SYSTEM: SCANNING RESUME... ]</span>
+              <span class="pulse-dot"></span>
+            </div>
+            <div class="scan-steps-list">
+              <div class="scan-step-item active">
+                <span>●</span> <span>1. SCANNING RESUME...</span>
+              </div>
+              <div class="scan-step-item">
+                <span>✓</span> <span>2. Skills detected (Python, SQL, Flask)</span>
+              </div>
+              <div class="scan-step-item">
+                <span>✓</span> <span>3. Experience detected (High-throughput microservices)</span>
+              </div>
+              <div class="scan-step-item">
+                <span>✓</span> <span>4. Projects detected (Real-time ATS engine)</span>
+              </div>
+              <div class="scan-step-item">
+                <span>✓</span> <span>5. Keywords detected (82% Target overlap)</span>
+              </div>
+              <div class="scan-step-item">
+                <span>✓</span> <span>6. ATS analysis ready (86/100 Benchmark)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         SECTION 2: "YOUR RESUME, UNDERSTOOD." & FEATURE CARDS
+         ======================================================== -->
+    <section id="features" style="padding: 5rem 0;">
+      <div class="section-header">
+        <span class="badge badge-cyan" style="margin-bottom: 0.85rem;">Intelligent Parsing</span>
+        <h2>Your Resume, Understood.</h2>
+        <p>Our multi-layer AI deconstructs unstructured resumes into actionable intelligence across 5 critical dimensions.</p>
+      </div>
+
+      <!-- 5 Analysis Categories -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 4rem;">
+        <div class="category-card">
+          <div class="category-icon-wrap" style="color: var(--accent-cyan);">🧩</div>
+          <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem; color: #ffffff;">Skills</h3>
+          <p style="font-size: 0.875rem; line-height: 1.6;">
+            Extracts programming languages, frameworks, developer tools, and cloud infrastructure competencies.
+          </p>
+          <div style="margin-top: 1rem; display: flex; gap: 0.35rem; flex-wrap: wrap;">
+            <span class="badge badge-neutral" style="font-size: 0.7rem;">Python</span>
+            <span class="badge badge-neutral" style="font-size: 0.7rem;">Flask</span>
+            <span class="badge badge-neutral" style="font-size: 0.7rem;">SQL</span>
+          </div>
+        </div>
+
+        <div class="category-card">
+          <div class="category-icon-wrap" style="color: var(--primary);">📈</div>
+          <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem; color: #ffffff;">Experience</h3>
+          <p style="font-size: 0.875rem; line-height: 1.6;">
+            Audits employment history for strong action verbs, quantifiable metrics, and business impact.
+          </p>
+          <div style="margin-top: 1rem;">
+            <span class="badge badge-success" style="font-size: 0.7rem;">STAR Alignment: 88%</span>
+          </div>
+        </div>
+
+        <div class="category-card">
+          <div class="category-icon-wrap" style="color: var(--accent-indigo);">🚀</div>
+          <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem; color: #ffffff;">Projects</h3>
+          <p style="font-size: 0.875rem; line-height: 1.6;">
+            Evaluates technical complexity, architecture decisions, production scale, and practical deliverables.
+          </p>
+          <div style="margin-top: 1rem;">
+            <span class="badge badge-cyan" style="font-size: 0.7rem;">Scale & Architecture</span>
+          </div>
+        </div>
+
+        <div class="category-card">
+          <div class="category-icon-wrap" style="color: var(--accent-purple);">🎓</div>
+          <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem; color: #ffffff;">Education</h3>
+          <p style="font-size: 0.875rem; line-height: 1.6;">
+            Validates degree qualifications, coursework relevance, and accredited technical credentials.
+          </p>
+          <div style="margin-top: 1rem;">
+            <span class="badge badge-purple" style="font-size: 0.7rem;">Degree Verified</span>
+          </div>
+        </div>
+
+        <div class="category-card">
+          <div class="category-icon-wrap" style="color: var(--warning-text);">🔍</div>
+          <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem; color: #ffffff;">Keywords</h3>
+          <p style="font-size: 0.875rem; line-height: 1.6;">
+            Scores keyword density against target role descriptions to bypass strict ATS filtering algorithms.
+          </p>
+          <div style="margin-top: 1rem;">
+            <span class="badge badge-warning" style="font-size: 0.7rem;">Density: Optimal</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 8 Platform Capabilities Cards -->
+      <div style="text-align: center; max-width: 600px; margin: 0 auto 2.5rem;">
+        <span class="badge badge-primary" style="margin-bottom: 0.65rem;">Platform Capabilities</span>
+        <h3 style="font-size: 1.85rem; color: #ffffff;">Everything You Need to Accelerate Your Career</h3>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;">
+        <div class="card">
+          <div class="kpi-icon blue" style="margin-bottom: 1rem;">📊</div>
+          <h4 style="font-size: 1.05rem; margin-bottom: 0.35rem;">AI Resume Analysis</h4>
+          <p style="font-size: 0.85rem;">Deep multi-layer parsing across structure, quantifiable impacts, and technical clarity.</p>
+        </div>
+        <div class="card">
+          <div class="kpi-icon emerald" style="margin-bottom: 1rem;">🛡️</div>
+          <h4 style="font-size: 1.05rem; margin-bottom: 0.35rem;">ATS Score Audit</h4>
+          <p style="font-size: 0.85rem;">Simulate ATS parser indexing to detect layout bugs and keyword density issues.</p>
+        </div>
+        <div class="card">
+          <div class="kpi-icon cyan" style="margin-bottom: 1rem;">🎯</div>
+          <h4 style="font-size: 1.05rem; margin-bottom: 0.35rem;">Job Match</h4>
+          <p style="font-size: 0.85rem;">Compare your resume against any target role or pasted job description.</p>
+        </div>
+        <div class="card">
+          <div class="kpi-icon purple" style="margin-bottom: 1rem;">🧩</div>
+          <h4 style="font-size: 1.05rem; margin-bottom: 0.35rem;">Skill Gap Matrix</h4>
+          <p style="font-size: 0.85rem;">Pinpoint high-impact missing technical skills that unlock recruiter callbacks.</p>
+        </div>
+        <div class="card">
+          <div class="kpi-icon cyan" style="margin-bottom: 1rem;">✨</div>
+          <h4 style="font-size: 1.05rem; margin-bottom: 0.35rem;">Resume Improver</h4>
+          <p style="font-size: 0.85rem;">Rewrite weak bullets into STAR impact phrases without inventing false claims.</p>
+        </div>
+        <div class="card">
+          <div class="kpi-icon blue" style="margin-bottom: 1rem;">🗺️</div>
+          <h4 style="font-size: 1.05rem; margin-bottom: 0.35rem;">Career Roadmap</h4>
+          <p style="font-size: 0.85rem;">Phased learning milestones with practical portfolio project ideas.</p>
+        </div>
+        <div class="card">
+          <div class="kpi-icon purple" style="margin-bottom: 1rem;">🤖</div>
+          <h4 style="font-size: 1.05rem; margin-bottom: 0.35rem;">AI Career Chat</h4>
+          <p style="font-size: 0.85rem;">Interactive career assistant scoped directly to your resume diagnostic.</p>
+        </div>
+        <div class="card">
+          <div class="kpi-icon emerald" style="margin-bottom: 1rem;">📁</div>
+          <h4 style="font-size: 1.05rem; margin-bottom: 0.35rem;">Analysis History</h4>
+          <p style="font-size: 0.85rem;">Track score improvements across resume revisions and multiple job targets.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         SECTION 3: "KNOW YOUR SCORE" - ANIMATED SCORE RINGS
+         ======================================================== -->
+    <section id="scores" style="padding: 5rem 0;">
+      <div class="section-header">
+        <span class="badge badge-primary" style="margin-bottom: 0.85rem;">Precision Benchmarks</span>
+        <h2>Know Your Score</h2>
+        <p>Quantify your candidacy with real-time algorithmic audits across three vital evaluation tiers.</p>
+      </div>
+
+      <div class="score-hero-container">
+        <!-- 1. Overall Score Meter -->
+        <div class="score-meter-card">
+          <div style="position: relative; width: 140px; height: 140px; margin: 0 auto 1.25rem;">
+            <svg class="circular-meter-svg" viewBox="0 0 100 100">
+              <circle class="meter-bg-circle" cx="50" cy="50" r="42" />
+              <circle class="meter-progress-circle meter-progress-cyan gauge-circle-progress" cx="50" cy="50" r="42" 
+                      data-score="84" stroke-dasharray="264" stroke-dashoffset="264" />
+            </svg>
+            <div class="score-center-text">
+              <span class="score-number-big count-up" data-target="84">0</span>
+              <span class="score-number-unit">/ 100</span>
+            </div>
+          </div>
+          <h3 style="font-size: 1.2rem; margin-bottom: 0.35rem; color: #ffffff;">Overall Score</h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">Composite ranking across formatting, skills, impact, and projects.</p>
+          <span class="badge badge-cyan">Strong Competitive Profile</span>
+        </div>
+
+        <!-- 2. ATS Score Meter -->
+        <div class="score-meter-card">
+          <div style="position: relative; width: 140px; height: 140px; margin: 0 auto 1.25rem;">
+            <svg class="circular-meter-svg" viewBox="0 0 100 100">
+              <circle class="meter-bg-circle" cx="50" cy="50" r="42" />
+              <circle class="meter-progress-circle meter-progress-emerald gauge-circle-progress" cx="50" cy="50" r="42" 
+                      data-score="86" stroke-dasharray="264" stroke-dashoffset="264" />
+            </svg>
+            <div class="score-center-text">
+              <span class="score-number-big count-up" data-target="86" style="color: var(--success-text);">0</span>
+              <span class="score-number-unit">/ 100</span>
+            </div>
+          </div>
+          <h3 style="font-size: 1.2rem; margin-bottom: 0.35rem; color: #ffffff;">ATS Score</h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">Machine readability, header hierarchy, and layout parsability.</p>
+          <span class="badge badge-success">High Filter Pass Rate</span>
+        </div>
+
+        <!-- 3. Job Match Meter -->
+        <div class="score-meter-card">
+          <div style="position: relative; width: 140px; height: 140px; margin: 0 auto 1.25rem;">
+            <svg class="circular-meter-svg" viewBox="0 0 100 100">
+              <circle class="meter-bg-circle" cx="50" cy="50" r="42" />
+              <circle class="meter-progress-circle meter-progress-purple gauge-circle-progress" cx="50" cy="50" r="42" 
+                      data-score="78" stroke-dasharray="264" stroke-dashoffset="264" />
+            </svg>
+            <div class="score-center-text">
+              <span class="score-number-big count-up" data-target="78" style="color: #c084fc;">0</span>
+              <span class="score-number-unit">% FIT</span>
+            </div>
+          </div>
+          <h3 style="font-size: 1.2rem; margin-bottom: 0.35rem; color: #ffffff;">Job Match</h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">Specific alignment with target role description requirements.</p>
+          <span class="badge badge-purple">Target: Python Developer</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         SECTION 4: "FIND WHAT'S MISSING" - VISUAL SKILL NODE GRAPH
+         ======================================================== -->
+    <section id="skill-gap" style="padding: 5rem 0;">
+      <div class="section-header">
+        <span class="badge badge-warning" style="margin-bottom: 0.85rem;">Competency Mapping</span>
+        <h2>Find What's Missing</h2>
+        <p>Bridge the gap between where your resume stands today and what high-paying tech roles require.</p>
+      </div>
+
+      <div class="skill-graph-flow">
+        <!-- Left: Current Skills -->
+        <div class="skill-node-column">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.25rem;">
+            <span style="font-size: 0.85rem; font-weight: 700; color: var(--success-text);">CURRENT SKILLS</span>
+            <span class="badge badge-success">Detected (3)</span>
+          </div>
+          <div class="skill-node-box current">
+            <span>Python</span>
+            <span>✓</span>
+          </div>
+          <div class="skill-node-box current">
+            <span>SQL</span>
+            <span>✓</span>
+          </div>
+          <div class="skill-node-box current">
+            <span>Flask</span>
+            <span>✓</span>
+          </div>
+        </div>
+
+        <div class="skill-flow-arrow">→</div>
+
+        <!-- Center: Skill Gap -->
+        <div class="skill-node-column">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.25rem;">
+            <span style="font-size: 0.85rem; font-weight: 700; color: var(--warning-text);">SKILL GAP</span>
+            <span class="badge badge-warning">Missing (3)</span>
+          </div>
+          <div class="skill-node-box missing">
+            <span>Docker</span>
+            <span>+42% Value</span>
+          </div>
+          <div class="skill-node-box missing">
+            <span>AWS Cloud</span>
+            <span>+38% Demand</span>
+          </div>
+          <div class="skill-node-box missing">
+            <span>REST APIs</span>
+            <span>Core Req</span>
+          </div>
+        </div>
+
+        <div class="skill-flow-arrow">→</div>
+
+        <!-- Right: Career Growth -->
+        <div class="skill-node-column">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.25rem;">
+            <span style="font-size: 0.85rem; font-weight: 700; color: var(--accent-cyan);">CAREER GROWTH</span>
+            <span class="badge badge-cyan">Unlocked</span>
+          </div>
+          <div class="skill-node-box growth">
+            <span>Senior Backend Role</span>
+            <span>🚀</span>
+          </div>
+          <div class="skill-node-box growth">
+            <span>Microservices Scale</span>
+            <span>⚡</span>
+          </div>
+          <div class="skill-node-box growth">
+            <span>Interview Ready</span>
+            <span>🎯</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         SECTION 5: "MATCH WITH YOUR TARGET JOB"
+         ======================================================== -->
+    <section id="job-match" style="padding: 5rem 0;">
+      <div class="section-header">
+        <span class="badge badge-cyan" style="margin-bottom: 0.85rem;">Role Match Engine</span>
+        <h2>Match With Your Target Job</h2>
+        <p>Compare your qualifications directly against job postings to identify exact alignment.</p>
+      </div>
+
+      <div class="match-pipeline-wrap">
+        <div>
+          <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <div class="pipeline-step-badge">1. RESUME</div>
+              <span style="font-size: 0.9rem; color: var(--text-secondary);">Alex Morgan (Python / Flask Backend)</span>
+            </div>
+            <div style="font-size: 1.2rem; color: var(--accent-cyan); padding-left: 2rem;">↓</div>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <div class="pipeline-step-badge" style="background: rgba(59, 130, 246, 0.2); border-color: rgba(59, 130, 246, 0.5); color: #60a5fa;">
+                2. AI MATCH ENGINE
+              </div>
+              <span style="font-size: 0.9rem; color: var(--text-secondary);">Semantic TF-IDF & LLM Cross-Audit</span>
+            </div>
+            <div style="font-size: 1.2rem; color: var(--accent-cyan); padding-left: 2rem;">↓</div>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <div class="pipeline-step-badge" style="background: rgba(139, 92, 246, 0.2); border-color: rgba(139, 92, 246, 0.5); color: #c084fc;">
+                3. JOB DESCRIPTION
+              </div>
+              <span style="font-size: 0.9rem; color: var(--text-secondary);">Target: Senior Backend Engineer</span>
+            </div>
+            <div style="font-size: 1.2rem; color: var(--accent-cyan); padding-left: 2rem;">↓</div>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <div class="pipeline-step-badge" style="background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.5); color: #34d399;">
+                4. MATCH SCORE
+              </div>
+              <span style="font-size: 1.15rem; font-weight: 800; color: var(--accent-cyan);">78% Match Fit</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glow-card" style="border-radius: var(--radius-lg); padding: 2rem;">
+          <h4 style="font-size: 1.1rem; margin-bottom: 1.25rem; color: #ffffff; display: flex; justify-content: space-between; align-items: center;">
+            <span>Match Breakdown</span>
+            <span style="font-size: 1.4rem; font-weight: 800; color: var(--accent-cyan);">78%</span>
+          </h4>
+
+          <div style="display: flex; flex-direction: column; gap: 1rem; font-size: 0.875rem;">
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+                <span style="color: var(--text-secondary);">Matching Skills</span>
+                <span style="color: var(--success-text); font-weight: 700;">85% (Python, SQL, Flask)</span>
+              </div>
+              <div style="height: 6px; background: rgba(255, 255, 255, 0.1); border-radius: 99px; overflow: hidden;">
+                <div style="width: 85%; height: 100%; background: var(--success); border-radius: 99px;"></div>
+              </div>
+            </div>
+
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+                <span style="color: var(--text-secondary);">Missing Skills</span>
+                <span style="color: var(--warning-text); font-weight: 700;">Docker, AWS Cloud</span>
+              </div>
+              <div style="height: 6px; background: rgba(255, 255, 255, 0.1); border-radius: 99px; overflow: hidden;">
+                <div style="width: 60%; height: 100%; background: var(--warning); border-radius: 99px;"></div>
+              </div>
+            </div>
+
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+                <span style="color: var(--text-secondary);">Experience Alignment</span>
+                <span style="color: #60a5fa; font-weight: 700;">High (3+ Years)</span>
+              </div>
+              <div style="height: 6px; background: rgba(255, 255, 255, 0.1); border-radius: 99px; overflow: hidden;">
+                <div style="width: 80%; height: 100%; background: var(--primary); border-radius: 99px;"></div>
+              </div>
+            </div>
+
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+                <span style="color: var(--text-secondary);">Keyword Overlap</span>
+                <span style="color: var(--accent-cyan); font-weight: 700;">82% Term Density</span>
+              </div>
+              <div style="height: 6px; background: rgba(255, 255, 255, 0.1); border-radius: 99px; overflow: hidden;">
+                <div style="width: 82%; height: 100%; background: var(--accent-cyan); border-radius: 99px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         SECTION 6: "BUILD YOUR CAREER ROADMAP"
+         ======================================================== -->
+    <section id="roadmap" style="padding: 5rem 0;">
+      <div class="section-header">
+        <span class="badge badge-purple" style="margin-bottom: 0.85rem;">Step-by-Step Path</span>
+        <h2>Build Your Career Roadmap</h2>
+        <p>Transform missing skill gaps into sequenced milestones with real portfolio projects to showcase.</p>
+      </div>
+
+      <!-- Career Orbit 3D Visualization -->
+      <div class="career-orbit-container" style="margin-bottom: 3rem;">
+        <div class="orbit-center-node">
+          <span>YOU</span>
+        </div>
+
+        <div class="orbit-ring-inner">
+          <div class="orbit-node-item current" style="top: -12px; left: 50%; transform: translateX(-50%);">
+            <span>✓ Python</span>
+          </div>
+          <div class="orbit-node-item current" style="bottom: 25px; left: -10px;">
+            <span>✓ SQL</span>
+          </div>
+          <div class="orbit-node-item current" style="bottom: 25px; right: -10px;">
+            <span>✓ Flask</span>
+          </div>
+        </div>
+
+        <div class="orbit-ring-outer">
+          <div class="orbit-node-item missing" style="top: 20px; left: 10px;">
+            <span>+ Docker</span>
+          </div>
+          <div class="orbit-node-item missing" style="top: 20px; right: 10px;">
+            <span>+ AWS Cloud</span>
+          </div>
+          <div class="orbit-node-item missing" style="bottom: -15px; left: 50%; transform: translateX(-50%);">
+            <span>+ REST APIs</span>
+          </div>
+        </div>
+
+        <div class="orbit-node-item target" style="top: 25px; right: 30px;">
+          <span>🎯 Target: Backend Developer ($135k+)</span>
+        </div>
+      </div>
+
+      <!-- Roadmap Milestone Timeline -->
+      <div class="roadmap-timeline">
+        <div class="roadmap-step-item">
+          <div class="roadmap-step-icon" style="border-color: var(--success); color: var(--success-text);">01</div>
+          <div class="roadmap-step-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <h4 style="font-size: 1.15rem; color: #ffffff;">Current Baseline</h4>
+              <span class="badge badge-success">Completed</span>
+            </div>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              Solid core in fundamental web programming and database design.
+            </p>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <span class="badge badge-neutral">Python 3.x</span>
+              <span class="badge badge-neutral">SQL / ORM</span>
+              <span class="badge badge-neutral">Flask Microframework</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="roadmap-step-item">
+          <div class="roadmap-step-icon" style="border-color: var(--accent-cyan); color: var(--accent-cyan);">02</div>
+          <div class="roadmap-step-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <h4 style="font-size: 1.15rem; color: #ffffff;">Phase 1: REST APIs & Containerization</h4>
+              <span class="badge badge-cyan">In Progress</span>
+            </div>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              Build industry-standard RESTful APIs, OpenAPI documentation, and containerize workflows with Docker.
+            </p>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <span class="badge badge-cyan">Docker</span>
+              <span class="badge badge-cyan">RESTful Architecture</span>
+              <span class="badge badge-neutral">Project: Distributed Task Queue</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="roadmap-step-item">
+          <div class="roadmap-step-icon" style="border-color: var(--primary); color: #60a5fa;">03</div>
+          <div class="roadmap-step-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <h4 style="font-size: 1.15rem; color: #ffffff;">Phase 2: Cloud Infrastructure & Resilience</h4>
+              <span class="badge badge-primary">Next Target</span>
+            </div>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              Deploy scalable microservices onto AWS ECS, configure Redis caching, and automate CI/CD test suites.
+            </p>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <span class="badge badge-primary">AWS (ECS, S3, RDS)</span>
+              <span class="badge badge-primary">Redis Caching</span>
+              <span class="badge badge-neutral">Project: Cloud-Native API</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="roadmap-step-item">
+          <div class="roadmap-step-icon" style="border-color: var(--accent-purple); color: #c084fc;">🎯</div>
+          <div class="roadmap-step-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <h4 style="font-size: 1.15rem; color: #ffffff;">Target Role: Senior Backend Developer</h4>
+              <span class="badge badge-purple">Goal Achievement</span>
+            </div>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              High ATS alignment, zero skill gaps, and interview-ready portfolio demonstrating scale.
+            </p>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <span class="badge badge-success">Top 5% Candidate Tier</span>
+              <span class="badge badge-cyan">Compensation: $135,000+</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         SECTION 7: "IMPROVE YOUR RESUME"
+         ======================================================== -->
+    <section id="improver-demo" style="padding: 5rem 0;">
+      <div class="section-header">
+        <span class="badge badge-cyan" style="margin-bottom: 0.85rem;">Zero-Hallucination AI</span>
+        <h2>Improve Your Resume</h2>
+        <p>Transform passive duty descriptions into high-impact STAR achievements without fabricating credentials.</p>
+      </div>
+
+      <div class="improver-interactive-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 1.25rem;">
+          <div>
+            <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700;">TRANSFORMATION DEMONSTRATION</span>
+            <h3 style="font-size: 1.25rem; color: #ffffff; margin-top: 0.2rem;">Python Developer Resume Bullet</h3>
+          </div>
+          <span class="badge badge-success">✓ STAR Method Applied</span>
+        </div>
+
+        <div class="comparison-split-grid">
+          <div class="comparison-box before">
+            <div class="comparison-box-title" style="color: var(--danger-text);">
+              <span>✕</span>
+              <span>BEFORE (Weak & Passive)</span>
+            </div>
+            <div class="comparison-quote" style="color: #cbd5e1;">
+              "Worked on Python project."
+            </div>
+            <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--danger-text);">
+              ⚠ Lacks technical context, measurable metrics, business impact, and modern tool stack.
+            </div>
+          </div>
+
+          <div class="comparison-box after">
+            <div class="comparison-box-title" style="color: var(--success-text);">
+              <span>✓</span>
+              <span>AFTER (High-Impact & Quantified)</span>
+            </div>
+            <div class="comparison-quote" style="color: #ffffff; font-weight: 500;">
+              "Developed a Flask-based AI resume analysis platform using Python, SQLAlchemy and OpenAI APIs."
+            </div>
+            <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--success-text);">
+              ✓ Strong active verb, specific tech stack, clear functional deliverable, and high ATS keyword density.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         SECTION 8: FINAL CTA BANNER
+         ======================================================== -->
+    <section style="padding: 4rem 0 6rem;">
+      <div class="cta-luxury-banner">
+        <div style="position: absolute; top: -50px; left: 50%; transform: translateX(-50%); width: 450px; height: 150px; background: radial-gradient(circle, rgba(0, 240, 255, 0.3) 0%, transparent 70%); filter: blur(40px); pointer-events: none;"></div>
+        
+        <span class="badge badge-cyan" style="margin-bottom: 1.25rem;">Accelerate Your Career</span>
+        <h2 style="font-size: 2.75rem; font-weight: 800; letter-spacing: -0.04em; margin-bottom: 1rem; color: #ffffff;">
+          Your next opportunity starts with your resume.
+        </h2>
+        <p style="font-size: 1.15rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto 2.5rem; line-height: 1.6;">
+          Upload your resume now to receive instant ATS readability feedback, skill gap analysis, and your custom career roadmap.
+        </p>
+
+        <div>
+          <div class="magnetic-btn-wrap">
+            <a href="upload.html" class="btn btn-cyan btn-lg btn-magnetic" style="font-size: 1.05rem; padding: 0.85rem 2.25rem;">
+              <span>Analyze My Resume →</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div style="max-width: 340px;">
+          <div class="nav-brand" style="margin-bottom: 1rem;">
+            <div class="brand-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+              </svg>
+            </div>
+            <div class="brand-text">SkyGuard <span>AI</span></div>
+          </div>
+          <p style="font-size: 0.85rem; line-height: 1.6; color: var(--text-muted);">
+            Next-generation resume diagnostics, role matching, and autonomous career roadmap intelligence.
+          </p>
+        </div>
+
+        <div>
+          <h4 style="font-size: 0.85rem; text-transform: uppercase; color: #ffffff; letter-spacing: 0.06em; margin-bottom: 1rem;">Platform</h4>
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.85rem;">
+            <li><a href="upload.html" style="color: var(--text-secondary);">Resume Scanner</a></li>
+            <li><a href="results.html?demo=true" style="color: var(--text-secondary);">Interactive Demo</a></li>
+            <li><a href="dashboard.html" style="color: var(--text-secondary);">Career Dashboard</a></li>
+            <li><a href="roadmap.html" style="color: var(--text-secondary);">Learning Roadmaps</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 style="font-size: 0.85rem; text-transform: uppercase; color: #ffffff; letter-spacing: 0.06em; margin-bottom: 1rem;">Architecture</h4>
+          <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
+            Frontend on Vercel CDN<br>
+            Flask REST API on Render<br>
+            Three.js WebGL & PyMuPDF
+          </p>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; 2026 SkyGuard AI. Built with luxury dark aesthetic and high-performance precision.</div>
+        <div style="color: var(--text-muted); font-size: 0.8rem;">PBKDF2 Hashed • CSRF Protected • PyMuPDF Parser</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="js/hero_3d.js"></script>
+  <script src="js/main.js"></script>
+  
+  <script>
+    // Check authentication state to update navbar buttons
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const authData = await window.SkyGuardAPI.auth.me();
+        if (authData && authData.authenticated && authData.user) {
+          const authContainer = document.getElementById('nav-auth-container');
+          if (authContainer) {
+            authContainer.innerHTML = `
+              <a href="dashboard.html" class="btn btn-secondary btn-sm">Dashboard</a>
+              <button onclick="logoutUser()" class="btn btn-ghost btn-sm" style="color: var(--danger-text);">Log Out</button>
+            `;
+          }
+        }
+      } catch(e) {
+        console.log('Public user session');
+      }
+    });
+
+    async function logoutUser() {
+      try {
+        await window.SkyGuardAPI.auth.logout();
+        window.location.reload();
+      } catch (err) {
+        window.location.href = 'login.html';
+      }
+    }
+  </script>
+</body>
+</html>

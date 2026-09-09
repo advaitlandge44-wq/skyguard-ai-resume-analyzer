@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analysis History - SkyGuard AI</title>
+  <meta name="description" content="View past resume analyses, score trajectories, and target role benchmarks.">
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+          </svg>
+        </div>
+        <div class="brand-text">SkyGuard <span>AI</span></div>
+      </a>
+
+      <ul class="nav-links" id="public-nav-links">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+        <li><a href="roadmap.html" class="nav-link">Roadmap</a></li>
+        <li><a href="history.html" class="nav-link active">History</a></li>
+        <li><a href="upload.html" class="nav-link" style="color: var(--accent-cyan);">+ New Scan</a></li>
+      </ul>
+
+      <div class="nav-auth">
+        <a href="dashboard.html" class="btn btn-secondary btn-sm">Dashboard</a>
+      </div>
+
+      <button class="mobile-toggle" id="public-mobile-toggle" aria-label="Toggle navigation">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+    </div>
+  </nav>
+
+  <div class="container" style="padding: 2.5rem 1.5rem 5rem;">
+    <div class="dashboard-header-block">
+      <div>
+        <h1 class="dashboard-greeting">Evaluation History</h1>
+        <p class="dashboard-subtext">Review and search all previous resume analysis reports.</p>
+      </div>
+      <div>
+        <a href="upload.html" class="btn btn-cyan">+ Scan New Resume</a>
+      </div>
+    </div>
+
+    <!-- Search & Filter Controls -->
+    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+      <div style="flex: 1; min-width: 240px;">
+        <input type="text" id="search-input" class="form-control" placeholder="Search by target role (e.g. Software Engineer, Data Scientist)...">
+      </div>
+      <div style="width: 180px;">
+        <select id="sort-select" class="form-control form-select">
+          <option value="date">Sort: Most Recent</option>
+          <option value="score">Sort: Overall Score</option>
+          <option value="ats">Sort: ATS Score</option>
+          <option value="match">Sort: Job Fit %</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- History List Container -->
+    <div class="analyses-table-card" id="history-list-container">
+      <div style="padding: 2.5rem; text-align: center; color: var(--text-muted);">
+        Loading evaluation history from Render backend...
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      loadHistory();
+
+      const searchInput = document.getElementById('search-input');
+      const sortSelect = document.getElementById('sort-select');
+
+      let debounceTimer;
+      if (searchInput) {
+        searchInput.addEventListener('input', () => {
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(() => {
+            loadHistory(searchInput.value.trim(), sortSelect.value);
+          }, 300);
+        });
+      }
+
+      if (sortSelect) {
+        sortSelect.addEventListener('change', () => {
+          loadHistory(searchInput ? searchInput.value.trim() : '', sortSelect.value);
+        });
+      }
+    });
+
+    async function loadHistory(query = '', sort = 'date') {
+      const container = document.getElementById('history-list-container');
+      try {
+        const data = await window.SkyGuardAPI.history.get(query, sort);
+        if (data && data.success) {
+          if (data.analyses && data.analyses.length > 0) {
+            container.innerHTML = data.analyses.map(item => `
+              <a href="results.html?id=${item.id}" class="history-card-item">
+                <div class="history-item-left">
+                  <div style="width: 42px; height: 42px; border-radius: var(--radius-sm); background: rgba(0, 240, 255, 0.12); color: var(--accent-cyan); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                    📄
+                  </div>
+                  <div>
+                    <div class="history-role-name">${item.target_role || 'General Analysis'}</div>
+                    <div class="history-meta-row">
+                      <span>📅 ${item.created_at || 'Recently analyzed'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="history-scores-group">
+                  <div class="mini-score-chip">
+                    <span class="mini-score-label">Overall</span>
+                    <span class="mini-score-val high">${item.overall_score || 75}</span>
+                  </div>
+                  <div class="mini-score-chip">
+                    <span class="mini-score-label">ATS</span>
+                    <span class="mini-score-val high">${item.ats_score || 75}</span>
+                  </div>
+                  <div class="mini-score-chip">
+                    <span class="mini-score-label">Fit</span>
+                    <span class="mini-score-val mid">${item.job_match_score || 70}%</span>
+                  </div>
+                  <span class="btn btn-outline btn-sm">View Report →</span>
+                </div>
+              </a>
+            `).join('');
+          } else {
+            container.innerHTML = `
+              <div class="empty-placeholder">
+                <div class="empty-placeholder-icon">🔍</div>
+                <h3>No Matching Analyses Found</h3>
+                <p>Try adjusting your search criteria or upload a new resume.</p>
+                <a href="upload.html" class="btn btn-cyan btn-sm">+ Scan New Resume</a>
+              </div>
+            `;
+          }
+        }
+      } catch (err) {
+        if (err.status === 401) {
+          window.location.href = 'login.html?next=history.html';
+        } else {
+          container.innerHTML = `
+            <div class="empty-placeholder">
+              <div class="empty-placeholder-icon">⚠️</div>
+              <h3>Failed to Load History</h3>
+              <p>${err.message || 'Unable to connect to Render backend.'}</p>
+            </div>
+          `;
+        }
+      }
+    }
+  </script>
+</body>
+</html>
