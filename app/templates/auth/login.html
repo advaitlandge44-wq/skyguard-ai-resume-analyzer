@@ -83,6 +83,7 @@
               <input type="checkbox" name="remember" style="accent-color: var(--primary);">
               <span>Remember me for 7 days</span>
             </label>
+            <a href="{{ url_for('auth.forgot_password') }}" style="font-size: 0.8rem; color: var(--accent-cyan); text-decoration: none; font-weight: 500; transition: color 0.15s ease;" onmouseover="this.style.color='var(--accent-indigo)'" onmouseout="this.style.color='var(--accent-cyan)'">Forgot Password?</a>
           </div>
 
           <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">

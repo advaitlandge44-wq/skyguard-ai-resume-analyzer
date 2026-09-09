@@ -1,6 +1,7 @@
-from flask import Blueprint, render_template, g, request
+from flask import Blueprint, render_template, g, request, session, redirect, url_for, flash
 from app.models import Analysis, Resume
 from app.services.security import login_required
+from app.services.demo_service import get_or_create_demo_user, get_or_create_demo_analysis
 
 main_bp = Blueprint('main', __name__)
 
@@ -9,6 +10,28 @@ main_bp = Blueprint('main', __name__)
 def index():
     """Public landing page showcasing product features and ATS capabilities."""
     return render_template('index.html')
+
+
+@main_bp.route('/demo')
+@main_bp.route('/try-demo')
+def try_demo():
+    """Activates automatic presentation Demo Mode with pre-loaded sample resume."""
+    demo_user = get_or_create_demo_user()
+    session.clear()
+    session['user_id'] = demo_user.id
+    session['is_demo'] = True
+    g.user = demo_user
+
+    demo_analysis = get_or_create_demo_analysis(demo_user)
+    return render_template('demo/launch.html', analysis=demo_analysis, user=demo_user)
+
+
+@main_bp.route('/demo/exit')
+def exit_demo():
+    """Exits Demo Mode and clears demo session state."""
+    session.clear()
+    flash('You have exited Demo Mode.', 'info')
+    return redirect(url_for('main.index'))
 
 
 @main_bp.route('/dashboard')

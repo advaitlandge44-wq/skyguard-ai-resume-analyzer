@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Demo Mode Auto-Launch - SkyGuard AI{% endblock %}
+{% block breadcrumb %}Demo Presentation{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 2.5rem 1.5rem; min-height: 75vh; display: flex; align-items: center; justify-content: center;">
+  <div class="card card-elevated" style="max-width: 580px; width: 100%; padding: 2.75rem 2.25rem; text-align: center; position: relative; overflow: hidden; border: 1px solid rgba(0, 240, 255, 0.3); box-shadow: 0 20px 50px rgba(0, 240, 255, 0.15);">
+    
+    <!-- Top Demo Glow Pill -->
+    <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(0, 240, 255, 0.12); border: 1px solid rgba(0, 240, 255, 0.4); padding: 4px 14px; border-radius: 9999px; margin-bottom: 1.5rem;">
+      <span class="pulse-dot" style="width: 8px; height: 8px; background: var(--accent-cyan);"></span>
+      <span style="font-size: 0.75rem; font-weight: 800; letter-spacing: 0.08em; color: var(--accent-cyan); text-transform: uppercase;">AUTOMATIC DEMO MODE</span>
+    </div>
+
+    <h2 style="font-size: 1.85rem; font-weight: 800; line-height: 1.2; margin-bottom: 0.5rem; letter-spacing: -0.02em;">
+      Sample Resume <span style="color: var(--accent-cyan);">Auto-Loaded ✓</span>
+    </h2>
+
+    <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 2rem;">
+      Zero setup required. We've pre-loaded a production-grade sample resume ready for instant presentation.
+    </p>
+
+    <!-- Resume Info Capsule -->
+    <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; text-align: left;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding-bottom: 0.75rem;">
+        <div>
+          <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">CANDIDATE</div>
+          <div style="font-size: 1.05rem; font-weight: 700; color: #ffffff;">Alex Patil</div>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">TARGET ROLE</div>
+          <div style="font-size: 0.95rem; font-weight: 700; color: var(--accent-cyan);">Python Developer</div>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.825rem; color: var(--text-secondary);">
+        <div style="display: flex; align-items: center; gap: 0.45rem;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <span>Alex_Patil_Python_Developer.pdf</span>
+        </div>
+        <span style="color: var(--success); font-weight: 600;">Parsed &amp; Ready</span>
+      </div>
+    </div>
+
+    <!-- AI Scan Loading Indicator -->
+    <div style="margin-bottom: 2rem;">
+      <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.4rem; color: var(--text-secondary);">
+        <span>Neural AI Evaluation Engine</span>
+        <span id="scan-progress-text" style="color: var(--accent-cyan); font-weight: 700;">Analyzing...</span>
+      </div>
+      <div style="height: 6px; width: 100%; background: rgba(255, 255, 255, 0.08); border-radius: 9999px; overflow: hidden; position: relative;">
+        <div id="scan-progress-bar" style="height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-indigo)); border-radius: 9999px; transition: width 1.2s ease-in-out;"></div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+      <a id="start-analysis-btn" href="{{ url_for('analysis.results', id=analysis.id) }}" class="btn btn-cyan btn-lg" style="width: 100%; font-size: 1rem;">
+        <span>Start Analysis →</span>
+      </a>
+      <a href="{{ url_for('main.exit_demo') }}" class="btn btn-ghost" style="font-size: 0.825rem; color: var(--text-muted);">
+        Exit Demo Mode
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Automatic transition after a brief, professional 1.2s loading state
+  document.addEventListener('DOMContentLoaded', function() {
+    var bar = document.getElementById('scan-progress-bar');
+    var text = document.getElementById('scan-progress-text');
+    var btn = document.getElementById('start-analysis-btn');
+    var targetUrl = btn.getAttribute('href');
+
+    setTimeout(function() {
+      bar.style.width = '100%';
+      text.innerText = 'Analysis Complete ✓';
+    }, 100);
+
+    setTimeout(function() {
+      window.location.href = targetUrl;
+    }, 1300);
+  });
+</script>
+{% endblock %}

@@ -6,19 +6,23 @@ document.addEventListener('DOMContentLoaded', () => {
   // Animate Circular Score Gauges
   const gauges = document.querySelectorAll('.gauge-circle-progress');
   gauges.forEach(gauge => {
-    const score = parseInt(gauge.getAttribute('data-score') || '0', 10);
-    const radius = parseFloat(gauge.getAttribute('r') || '48');
+    let score = parseInt(gauge.getAttribute('data-score') || '0', 10);
+    if (isNaN(score)) score = 0;
+    score = Math.max(0, Math.min(100, score));
+
+    const radiusAttr = gauge.getAttribute('r') || (gauge.r && gauge.r.baseVal ? gauge.r.baseVal.value : 48);
+    const radius = parseFloat(radiusAttr) || 48;
     const circumference = 2 * Math.PI * radius;
     
     gauge.style.strokeDasharray = `${circumference} ${circumference}`;
-    gauge.style.strokeDashoffset = circumference;
+    gauge.style.strokeDashoffset = `${circumference}`;
 
     const offset = circumference - (score / 100) * circumference;
     
     // Trigger animation
     setTimeout(() => {
-      gauge.style.strokeDashoffset = offset;
-    }, 200);
+      gauge.style.strokeDashoffset = `${offset}`;
+    }, 150);
   });
 
   // Animated Count-Up Numbers

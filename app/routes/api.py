@@ -11,7 +11,7 @@ api_bp = Blueprint('api', __name__)
 @login_required
 @limiter.limit("30 per minute")
 def chat_assistant(analysis_id: int):
-    """Contextual AI career assistant chat endpoint scoped to specific analysis."""
+    """Contextual AI career assistant chat endpoint scoped to specific analysis with full skill-gap context."""
     analysis = db.session.get(Analysis, analysis_id)
     if not analysis or analysis.user_id != g.user.id:
         return jsonify({'success': False, 'error': 'Analysis session not found or unauthorized.'}), 404
@@ -27,12 +27,13 @@ def chat_assistant(analysis_id: int):
         past_messages = ChatMessage.query.filter_by(analysis_id=analysis.id).order_by(ChatMessage.created_at.asc()).all()
         history = [{'role': m.role, 'content': m.content} for m in past_messages]
 
-        # Call AI assistant
+        # Call AI assistant with parsed analysis data context
         reply = ask_resume_assistant(
             chat_history=history,
             user_message=user_message,
             analysis_summary=analysis.summary or f"Resume analyzed for role {analysis.target_role}",
-            target_role=analysis.target_role
+            target_role=analysis.target_role,
+            analysis_data=analysis.parsed_data
         )
 
         # Persist messages in database

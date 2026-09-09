@@ -17,16 +17,26 @@
     <form id="resume-upload-form" method="POST" action="{{ url_for('resume.upload') }}" enctype="multipart/form-data">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-      <!-- 1. Target Role Selection -->
+      <!-- 1. Target Role Selection (Fixed 25 Roles) -->
       <div class="form-group">
         <label for="target_role_select" class="form-label">
-          What role are you applying for? <span style="color: var(--danger-text);">*</span>
+          Target Job Role <span style="color: var(--danger-text);">*</span>
         </label>
         <select id="target_role_select" name="target_role_select" class="form-control form-select" required>
-          <option value="" disabled selected>Select a target job role...</option>
-          {% for role in popular_roles %}
-            <option value="{{ role }}" {% if target_role == role %}selected{% endif %}>{{ role }}</option>
-          {% endfor %}
+          <option value="" disabled selected>Select one of 25 target job roles...</option>
+          {% if role_categories %}
+            {% for cat_name, roles in role_categories.items() %}
+              <optgroup label="── {{ cat_name }} ──">
+                {% for role in roles %}
+                  <option value="{{ role }}" {% if target_role == role %}selected{% endif %}>{{ role }}</option>
+                {% endfor %}
+              </optgroup>
+            {% endfor %}
+          {% else %}
+            {% for role in popular_roles %}
+              <option value="{{ role }}" {% if target_role == role %}selected{% endif %}>{{ role }}</option>
+            {% endfor %}
+          {% endif %}
           <option value="custom" {% if target_role and target_role not in popular_roles %}selected{% endif %}>+ Enter Custom Role...</option>
         </select>
       </div>

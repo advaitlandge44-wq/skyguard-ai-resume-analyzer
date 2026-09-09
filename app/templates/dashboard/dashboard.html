@@ -100,64 +100,121 @@
   </div>
 </div>
 
-<!-- Skill Profile Section (Section 13) -->
+<!-- Skill Profile & Learning Hub Section -->
 {% if latest_analysis and latest_data %}
-<div class="skills-profile-card">
-  <div style="display: flex; justify-content: space-between; align-items: center;">
+<div class="dashboard-learning-card">
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
     <div>
-      <h3 style="font-size: 1.15rem; margin-bottom: 0.2rem;">Your Skill Profile</h3>
-      <p style="font-size: 0.85rem; color: var(--text-secondary);">
-        Synthesized from your latest resume for <strong>{{ latest_analysis.target_role }}</strong>
+      <span class="badge badge-cyan" style="margin-bottom: 0.35rem;">Target Role: {{ latest_analysis.target_role }}</span>
+      <h3 style="font-size: 1.35rem; margin-bottom: 0.2rem; color: #ffffff;">Learning & Career Progression Hub</h3>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+        Personalized skill-gap analysis and curated learning path for <strong>{{ latest_analysis.target_role }}</strong>.
       </p>
     </div>
-    <a href="{{ url_for('analysis.results', id=latest_analysis.id) }}" class="btn btn-outline btn-sm">
-      View Full Matrix →
-    </a>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <a href="{{ url_for('main.roadmap') }}" class="btn btn-cyan btn-sm">
+        <span>View Full Roadmap →</span>
+      </a>
+      <a href="{{ url_for('analysis.results', id=latest_analysis.id) }}" class="btn btn-outline btn-sm">
+        <span>View Analysis →</span>
+      </a>
+    </div>
   </div>
 
-  <div class="skills-split-grid">
-    <!-- Existing Skills -->
-    <div class="skill-category-box">
+  <!-- 3-Way Skills Split -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+    <!-- Matched -->
+    <div class="skill-category-box" style="border-top: 2px solid var(--success);">
       <div class="skill-category-header">
         <span class="skill-category-title" style="color: var(--success-text);">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          Existing Skills ({{ latest_data.existing_skills|length }})
+          ✓ Matched Skills
         </span>
-        <span class="badge badge-success">Detected in Resume</span>
+        <span class="badge badge-success">{{ (latest_data.matched_skills or latest_data.existing_skills)|length }}</span>
       </div>
-
       <div class="skills-pill-wrap">
-        {% for skill in latest_data.existing_skills %}
-          <span class="skill-badge-item existing">
-            ✓ {{ skill }}
-          </span>
+        {% for skill in (latest_data.matched_skills or latest_data.existing_skills)[:6] %}
+          <span class="skill-badge-item existing">✓ {{ skill }}</span>
         {% else %}
-          <span style="color: var(--text-muted); font-size: 0.8rem;">No technical skills indexed.</span>
+          <span style="color: var(--text-muted); font-size: 0.8rem;">No matched skills.</span>
         {% endfor %}
       </div>
     </div>
 
-    <!-- Missing Skills -->
-    <div class="skill-category-box">
+    <!-- Weak -->
+    <div class="skill-category-box" style="border-top: 2px solid #f59e0b;">
       <div class="skill-category-header">
-        <span class="skill-category-title" style="color: var(--warning-text);">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-          Missing Target Skills ({{ latest_data.missing_skills|length }})
+        <span class="skill-category-title" style="color: #fbbf24;">
+          ⚡ Weak / Needs Depth
         </span>
-        <span class="badge badge-warning">Recommended</span>
+        <span class="badge badge-warning">{{ latest_data.weak_skills|length }}</span>
       </div>
-
       <div class="skills-pill-wrap">
-        {% for skill in latest_data.missing_skills %}
-          <span class="skill-badge-item missing">
-            + {{ skill }}
+        {% for skill in (latest_data.weak_skills or [])[:4] %}
+          <span class="skill-badge-item" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35);">
+            ⚡ {{ skill }}
           </span>
         {% else %}
-          <span style="color: var(--success-text); font-size: 0.8rem;">All core role skills detected!</span>
+          <span style="color: var(--text-muted); font-size: 0.8rem;">No weak skills flagged.</span>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Missing -->
+    <div class="skill-category-box" style="border-top: 2px solid #ef4444;">
+      <div class="skill-category-header">
+        <span class="skill-category-title" style="color: #f87171;">
+          ✗ Missing Skills
+        </span>
+        <span class="badge badge-danger">{{ latest_data.missing_skills|length }}</span>
+      </div>
+      <div class="skills-pill-wrap">
+        {% for skill in (latest_data.missing_skills or [])[:6] %}
+          <span class="skill-badge-item missing">+ {{ skill }}</span>
+        {% else %}
+          <span style="color: var(--success-text); font-size: 0.8rem;">All core skills covered!</span>
         {% endfor %}
       </div>
     </div>
   </div>
+
+  <!-- Curated Learning Modules Preview -->
+  {% if latest_data.learning_resources %}
+    <div style="border-top: 1px solid var(--border-subtle); padding-top: 1.25rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+        <h4 style="font-size: 0.95rem; color: #ffffff; margin: 0;">Recommended Skill Modules (English + Hinglish):</h4>
+        <span style="font-size: 0.75rem; color: var(--accent-cyan);">Curated AI Learning Resources</span>
+      </div>
+
+      <div class="learning-preview-grid">
+        {% for res in latest_data.learning_resources[:3] %}
+          <div class="learning-mini-card">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                <strong style="color: #ffffff; font-size: 0.95rem;">{{ res.skill }}</strong>
+                <span class="badge-time" style="font-size: 0.7rem;">⏱️ {{ res.estimated_time }}</span>
+              </div>
+              <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.45; margin-bottom: 0.85rem;">
+                {{ res.why_matters }}
+              </p>
+            </div>
+
+            <div style="display: flex; gap: 0.45rem;">
+              {% if res.english_resource %}
+                <a href="{{ res.english_resource.url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" style="font-size: 0.75rem; padding: 3px 8px; flex: 1; text-align: center;">
+                  🇬🇧 English
+                </a>
+              {% endif %}
+              {% if res.hinglish_resource %}
+                <a href="{{ res.hinglish_resource.url }}" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm" style="font-size: 0.75rem; padding: 3px 8px; color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.35); flex: 1; text-align: center;">
+                  🇮🇳 Hinglish
+                </a>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
 </div>
 {% endif %}
 

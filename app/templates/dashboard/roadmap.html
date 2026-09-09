@@ -1,46 +1,149 @@
 {% extends "base.html" %}
 
-{% block title %}Career Roadmap - SkyGuard AI{% endblock %}
+{% block title %}Career Roadmap & Learning Plan - SkyGuard AI{% endblock %}
 {% block breadcrumb %}Career Roadmap{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/results.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 {% endblock %}
 
 {% block content %}
 <div class="dashboard-header-block">
   <div>
-    <h1 class="dashboard-greeting">Your Career Roadmap</h1>
+    <h1 class="dashboard-greeting">Your Career Roadmap &amp; Learning Plan</h1>
     {% if analysis %}
       <p class="dashboard-subtext">
-        Sequenced skill progression path for <strong>{{ analysis.target_role }}</strong> based on your latest resume evaluation.
+        Role-aware sequenced skill progression path for <strong>{{ analysis.target_role }}</strong> based on your latest resume evaluation.
       </p>
     {% else %}
-      <p class="dashboard-subtext">Actionable phased learning milestones to bridge your technical skill gaps.</p>
+      <p class="dashboard-subtext">Actionable phased learning milestones and curated masterclasses to bridge your technical skill gaps.</p>
     {% endif %}
   </div>
 
   {% if analysis %}
-    <a href="{{ url_for('analysis.results', id=analysis.id) }}" class="btn btn-outline btn-sm">
-      View Full Analysis Report →
-    </a>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <a href="{{ url_for('analysis.results', id=analysis.id) }}" class="btn btn-cyan btn-sm">
+        <span>View Full Analysis Report →</span>
+      </a>
+      <a href="{{ url_for('resume.upload') }}" class="btn btn-secondary btn-sm">
+        <span>+ Analyze New Role</span>
+      </a>
+    </div>
   {% endif %}
 </div>
 
 {% if analysis and data.learning_roadmap %}
-  <div class="card" style="padding: 2rem;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-subtle);">
+  <!-- Target Role & Alignment Card -->
+  <div class="card" style="padding: 1.75rem 2rem; margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
       <div>
-        <span class="badge badge-cyan" style="margin-bottom: 0.35rem;">Target Role</span>
-        <h3 style="font-size: 1.25rem;">{{ analysis.target_role }}</h3>
+        <span class="badge badge-cyan" style="margin-bottom: 0.35rem;">Target Job Role</span>
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: #ffffff; margin: 0;">{{ analysis.target_role }}</h2>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+          {{ analysis.resume.filename }} • {{ analysis.created_at.strftime('%B %d, %Y') }}
+        </p>
       </div>
-      <div style="text-align: right;">
-        <span style="font-size: 0.8rem; color: var(--text-muted);">Current Job Match</span>
-        <div style="font-size: 1.3rem; font-weight: 800; color: var(--accent-cyan);">{{ analysis.job_match_score }}%</div>
+      <div style="display: flex; align-items: center; gap: 1.5rem;">
+        <div class="mini-score-chip">
+          <span class="mini-score-label">Job Match</span>
+          <span class="mini-score-val high">{{ analysis.job_match_score }}%</span>
+        </div>
+        <div class="mini-score-chip">
+          <span class="mini-score-label">ATS Score</span>
+          <span class="mini-score-val high">{{ analysis.ats_score }}/100</span>
+        </div>
       </div>
     </div>
+  </div>
 
-    <!-- Roadmap Timeline Cards -->
+  <!-- Curated Learning Resource Cards Grid -->
+  {% if data.learning_resources %}
+    <div class="learning-plan-card">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <span class="badge badge-cyan" style="margin-bottom: 0.35rem;">Curated Masterclasses</span>
+          <h3 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 0.25rem; color: #ffffff;">
+            Recommended Skill Modules
+          </h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+            English and Hinglish/Hindi tutorials tailored for <strong>{{ analysis.target_role }}</strong> with practical tasks.
+          </p>
+        </div>
+        <span class="badge badge-primary" style="font-size: 0.775rem;">
+          {{ data.learning_resources|length }} Modules
+        </span>
+      </div>
+
+      <div class="learning-grid">
+        {% for item in data.learning_resources %}
+          <div class="resource-card">
+            <div>
+              <div class="resource-card-top">
+                <div class="resource-skill-title">{{ item.skill }}</div>
+                <div class="resource-meta-badges">
+                  <span class="badge-time">⏱️ {{ item.estimated_time }}</span>
+                  <span class="badge-diff {% if 'Beginner' in item.difficulty %}beginner{% elif 'Advanced' in item.difficulty %}advanced{% else %}intermediate{% endif %}">
+                    {{ item.difficulty }}
+                  </span>
+                </div>
+              </div>
+
+              <p class="resource-why">
+                <strong>Why it matters:</strong> {{ item.why_matters }}
+              </p>
+
+              <div class="resource-actions">
+                {% if item.english_resource %}
+                  <a href="{{ item.english_resource.url }}" target="_blank" rel="noopener noreferrer" class="btn-learn-lang english">
+                    <span>🇬🇧 Learn in English</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                  </a>
+                {% endif %}
+
+                {% if item.hinglish_resource %}
+                  <a href="{{ item.hinglish_resource.url }}" target="_blank" rel="noopener noreferrer" class="btn-learn-lang hinglish">
+                    <span>🇮🇳 Learn in Hinglish</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                  </a>
+                {% endif %}
+              </div>
+
+              {% if item.practice_task %}
+                <div class="task-box">
+                  <strong>⚡ Practice Challenge:</strong>
+                  <span>{{ item.practice_task }}</span>
+                </div>
+              {% endif %}
+
+              {% if item.project_idea %}
+                <div class="project-box-item">
+                  <strong>🚀 Portfolio Project:</strong>
+                  <span>{{ item.project_idea }}</span>
+                  {% if item.why_project %}
+                    <div style="font-size: 0.775rem; color: var(--text-muted); margin-top: 0.3rem; font-style: italic;">
+                      Why this project: {{ item.why_project }}
+                    </div>
+                  {% endif %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- 6-Phase Milestone Timeline -->
+  <div class="card" style="padding: 2rem; margin-bottom: 2rem;">
+    <div style="margin-bottom: 1.5rem; padding-bottom: 0.85rem; border-bottom: 1px solid var(--border-subtle);">
+      <span class="badge badge-cyan" style="margin-bottom: 0.35rem;">Milestone Timeline</span>
+      <h3 style="font-size: 1.35rem; color: #ffffff; margin: 0;">Step-by-Step Phased Roadmap</h3>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+        Sequenced path to transition from your current skills to full mastery of <strong>{{ analysis.target_role }}</strong>.
+      </p>
+    </div>
+
     <div class="roadmap-timeline-wrapper">
       {% for item in data.learning_roadmap %}
         <div class="roadmap-card-item">
@@ -48,14 +151,26 @@
             0{{ loop.index }}
           </div>
           <div class="roadmap-content">
-            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.35rem; flex-wrap: wrap; gap: 0.4rem;">
               <div class="roadmap-skill-name">{{ item.skill }}</div>
-              <span class="badge badge-primary" style="font-size: 0.75rem;">{{ item.order or item.week }}</span>
+              <div style="display: flex; gap: 0.4rem; align-items: center;">
+                {% if item.time_estimate %}
+                  <span class="badge-time">⏱️ {{ item.time_estimate }}</span>
+                {% endif %}
+                <span class="badge badge-primary" style="font-size: 0.75rem;">{{ item.order or item.phase or item.week }}</span>
+              </div>
             </div>
             
             <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.65rem;">
               {{ item.why }}
             </p>
+
+            {% if item.practice_task %}
+              <div class="task-box" style="margin-bottom: 0.45rem;">
+                <strong>⚡ Practical Task:</strong>
+                <span>{{ item.practice_task }}</span>
+              </div>
+            {% endif %}
 
             {% if item.project_idea %}
               <div class="roadmap-project-box">
@@ -63,11 +178,27 @@
                 <span>{{ item.project_idea }}</span>
               </div>
             {% endif %}
+
+            {% if item.english_url or item.hinglish_url %}
+              <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap;">
+                {% if item.english_url %}
+                  <a href="{{ item.english_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" style="font-size: 0.75rem; padding: 2px 8px;">
+                    🇬🇧 Learn in English →
+                  </a>
+                {% endif %}
+                {% if item.hinglish_url %}
+                  <a href="{{ item.hinglish_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm" style="font-size: 0.75rem; padding: 2px 8px; color: #c084fc;">
+                    🇮🇳 Learn in Hinglish →
+                  </a>
+                {% endif %}
+              </div>
+            {% endif %}
           </div>
         </div>
       {% endfor %}
     </div>
   </div>
+
 {% else %}
   <div class="empty-placeholder">
     <div class="empty-placeholder-icon">
@@ -78,9 +209,9 @@
       </svg>
     </div>
     <h3>No Roadmap Available Yet</h3>
-    <p>Upload a resume and choose your target job role to generate a personalized career roadmap.</p>
+    <p>Upload a resume and choose your target job role to generate your personalized learning plan and career roadmap.</p>
     <a href="{{ url_for('resume.upload') }}" class="btn btn-cyan btn-lg">
-      <span>+ Analyze Resume & Build Roadmap</span>
+      <span>+ Analyze Resume &amp; Build Roadmap</span>
     </a>
   </div>
 {% endif %}

@@ -22,19 +22,32 @@
   </div>
 
   <div class="results-header-actions">
-    <a href="{{ url_for('analysis.export_report', id=analysis.id) }}" target="_blank" class="btn btn-secondary btn-sm">
+    <a href="{{ url_for('analysis.export_report', id=analysis.id) }}" target="_blank" class="btn btn-cyan btn-sm">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-      <span>Printable Report</span>
+      <span>Download AI Report</span>
     </a>
     <button type="button" id="export-pdf-btn" class="btn btn-outline btn-sm">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
       <span>Save PDF</span>
     </button>
-    <a href="{{ url_for('resume.upload') }}" class="btn btn-cyan btn-sm">
+    <a href="{{ url_for('resume.upload') }}" class="btn btn-secondary btn-sm">
       <span>+ Analyze Another</span>
     </a>
   </div>
 </div>
+
+{% if is_demo %}
+<div style="background: rgba(0, 240, 255, 0.07); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px; padding: 0.85rem 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+  <div style="display: flex; align-items: center; gap: 0.65rem;">
+    <span class="pulse-dot" style="width: 8px; height: 8px; background: var(--accent-cyan);"></span>
+    <span style="font-size: 0.85rem; font-weight: 700; color: #ffffff;">Automatic Demo Session: <span style="color: var(--accent-cyan);">Alex Patil (Python Developer)</span></span>
+  </div>
+  <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem;">
+    <span style="color: var(--text-secondary);">Pre-configured sample resume with ATS audit, Skill Gap, Roadmap &amp; STAR Improver</span>
+    <a href="{{ url_for('main.exit_demo') }}" class="btn btn-ghost btn-sm" style="color: var(--accent-cyan); font-weight: 600; padding: 2px 8px;">Exit Demo</a>
+  </div>
+</div>
+{% endif %}
 
 <!-- 3 Top Metric Cards (Section 16) -->
 <div class="top-metrics-grid">
@@ -43,9 +56,9 @@
     <span class="meter-card-label">Overall Score</span>
     <span class="meter-card-desc">Weighted Quality & Impact</span>
     <div class="radial-svg-wrap">
-      <svg class="radial-svg" viewBox="0 0 120 120">
+      <svg class="radial-svg" width="120" height="120" viewBox="0 0 120 120" style="width: 120px; height: 120px; max-width: 120px; max-height: 120px;">
         <circle class="radial-bg-circle" cx="60" cy="60" r="48"></circle>
-        <circle class="radial-bar-circle gauge-circle-progress" cx="60" cy="60" r="48" stroke="url(#cyan-blue-grad)" data-score="{{ data.overall_score or analysis.overall_score }}"></circle>
+        <circle class="radial-bar-circle gauge-circle-progress" cx="60" cy="60" r="48" stroke="url(#cyan-blue-grad)" data-score="{{ [[(data.overall_score or analysis.overall_score or 0)|int, 0]|max, 100]|min }}"></circle>
         <defs>
           <linearGradient id="cyan-blue-grad" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stop-color="#3b82f6"/>
@@ -54,12 +67,12 @@
         </defs>
       </svg>
       <div class="radial-val-center">
-        <span class="count-up" data-target="{{ data.overall_score or analysis.overall_score }}">0</span>
+        <span class="count-up" data-target="{{ [[(data.overall_score or analysis.overall_score or 0)|int, 0]|max, 100]|min }}">0</span>
         <small>/100</small>
       </div>
     </div>
-    <span class="badge {% if (data.overall_score or analysis.overall_score) >= 80 %}badge-success{% elif (data.overall_score or analysis.overall_score) >= 60 %}badge-warning{% else %}badge-danger{% endif %}">
-      {% if (data.overall_score or analysis.overall_score) >= 80 %}Strong Alignment{% elif (data.overall_score or analysis.overall_score) >= 60 %}Moderate Quality{% else %}Needs Work{% endif %}
+    <span class="badge {% if (data.overall_score or analysis.overall_score or 0) >= 80 %}badge-success{% elif (data.overall_score or analysis.overall_score or 0) >= 60 %}badge-warning{% else %}badge-danger{% endif %}">
+      {% if (data.overall_score or analysis.overall_score or 0) >= 80 %}Strong Alignment{% elif (data.overall_score or analysis.overall_score or 0) >= 60 %}Moderate Quality{% else %}Needs Work{% endif %}
     </span>
   </div>
 
@@ -68,17 +81,17 @@
     <span class="meter-card-label">ATS Compatibility</span>
     <span class="meter-card-desc">Header & Keyword Parsing</span>
     <div class="radial-svg-wrap">
-      <svg class="radial-svg" viewBox="0 0 120 120">
+      <svg class="radial-svg" width="120" height="120" viewBox="0 0 120 120" style="width: 120px; height: 120px; max-width: 120px; max-height: 120px;">
         <circle class="radial-bg-circle" cx="60" cy="60" r="48"></circle>
-        <circle class="radial-bar-circle gauge-circle-progress" cx="60" cy="60" r="48" stroke="var(--success)" data-score="{{ data.ats_score or analysis.ats_score }}"></circle>
+        <circle class="radial-bar-circle gauge-circle-progress" cx="60" cy="60" r="48" stroke="var(--success)" data-score="{{ [[(data.ats_score or analysis.ats_score or 0)|int, 0]|max, 100]|min }}"></circle>
       </svg>
       <div class="radial-val-center">
-        <span class="count-up" data-target="{{ data.ats_score or analysis.ats_score }}">0</span>
+        <span class="count-up" data-target="{{ [[(data.ats_score or analysis.ats_score or 0)|int, 0]|max, 100]|min }}">0</span>
         <small>/100</small>
       </div>
     </div>
-    <span class="badge {% if (data.ats_score or analysis.ats_score) >= 80 %}badge-success{% elif (data.ats_score or analysis.ats_score) >= 60 %}badge-warning{% else %}badge-danger{% endif %}">
-      {% if (data.ats_score or analysis.ats_score) >= 80 %}ATS Optimized{% elif (data.ats_score or analysis.ats_score) >= 60 %}Parsable with Warnings{% else %}ATS Filter Risk{% endif %}
+    <span class="badge {% if (data.ats_score or analysis.ats_score or 0) >= 80 %}badge-success{% elif (data.ats_score or analysis.ats_score or 0) >= 60 %}badge-warning{% else %}badge-danger{% endif %}">
+      {% if (data.ats_score or analysis.ats_score or 0) >= 80 %}ATS Optimized{% elif (data.ats_score or analysis.ats_score or 0) >= 60 %}Parsable with Warnings{% else %}ATS Filter Risk{% endif %}
     </span>
   </div>
 
@@ -87,12 +100,12 @@
     <span class="meter-card-label">Job Match Rating</span>
     <span class="meter-card-desc">Alignment to {{ analysis.target_role }}</span>
     <div class="radial-svg-wrap">
-      <svg class="radial-svg" viewBox="0 0 120 120">
+      <svg class="radial-svg" width="120" height="120" viewBox="0 0 120 120" style="width: 120px; height: 120px; max-width: 120px; max-height: 120px;">
         <circle class="radial-bg-circle" cx="60" cy="60" r="48"></circle>
-        <circle class="radial-bar-circle gauge-circle-progress" cx="60" cy="60" r="48" stroke="var(--accent-cyan)" data-score="{{ data.job_match_score or analysis.job_match_score }}"></circle>
+        <circle class="radial-bar-circle gauge-circle-progress" cx="60" cy="60" r="48" stroke="var(--accent-cyan)" data-score="{{ [[(data.job_match_score or analysis.job_match_score or 0)|int, 0]|max, 100]|min }}"></circle>
       </svg>
       <div class="radial-val-center">
-        <span class="count-up" data-target="{{ data.job_match_score or analysis.job_match_score }}">0</span>
+        <span class="count-up" data-target="{{ [[(data.job_match_score or analysis.job_match_score or 0)|int, 0]|max, 100]|min }}">0</span>
         <small>%</small>
       </div>
     </div>
@@ -189,9 +202,9 @@
   </p>
 </div>
 
-<!-- Grid: Strengths (Section 19) & Missing Skills (Section 20) -->
+<!-- Grid: Strengths & Weaknesses (Diagnostic Overview) -->
 <div class="results-2col-grid">
-  <!-- Section 19: Strengths -->
+  <!-- Strengths -->
   <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
       <h3 style="font-size: 1.15rem; color: var(--success-text); display: flex; align-items: center; gap: 0.45rem;">
@@ -209,68 +222,90 @@
     {% else %}
       <div class="strength-card-item">
         <span style="color: var(--success-text); font-weight: 700;">✓</span>
-        <span>Strong technical foundation and relevant educational credentials.</span>
+        <span>Strong technical foundation and relevant credentials.</span>
       </div>
     {% endfor %}
   </div>
 
-  <!-- Section 20: Missing Skills -->
+  <!-- Weaknesses / Skill Gaps -->
   <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
       <h3 style="font-size: 1.15rem; color: var(--warning-text); display: flex; align-items: center; gap: 0.45rem;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-        Skills You Should Consider Adding
+        Areas for Improvement
       </h3>
-      <span class="badge badge-warning">{{ data.missing_skills|length }} Recommendations</span>
+      <span class="badge badge-warning">{{ data.weaknesses|length }} Points</span>
     </div>
 
-    {% for skill in data.missing_skills %}
-      <div class="missing-skill-item">
+    {% for item in data.weaknesses %}
+      <div class="missing-skill-item" style="border-left: 3px solid var(--warning);">
         <div>
-          <div class="missing-skill-name">+ {{ skill }}</div>
-          <div class="missing-skill-why">Essential core requirement for competitive {{ analysis.target_role }} candidates.</div>
+          <div style="font-size: 0.875rem; color: var(--text-primary); line-height: 1.45;">{{ item }}</div>
         </div>
-        <span class="badge {% if loop.index <= 2 %}badge-danger{% elif loop.index <= 4 %}badge-warning{% else %}badge-neutral{% endif %}" style="font-size: 0.7rem;">
-          {% if loop.index <= 2 %}High Priority{% elif loop.index <= 4 %}Medium{% else %}Low{% endif %}
-        </span>
       </div>
     {% else %}
-      <p style="color: var(--success-text); font-size: 0.9rem;">Great job! You have covered all major core skills for this role.</p>
+      <p style="color: var(--success-text); font-size: 0.9rem;">Great job! You have covered all major core competencies for this role.</p>
     {% endfor %}
   </div>
 </div>
 
-<!-- Section 21: Job Match & Recommendations -->
+<!-- 3-Way Skill Diagnostic Matrix (Matched, Weak, Missing) -->
 <div class="job-match-card">
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; padding-bottom: 0.85rem; border-bottom: 1px solid var(--border-subtle);">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; padding-bottom: 0.85rem; border-bottom: 1px solid var(--border-subtle); flex-wrap: wrap; gap: 0.5rem;">
     <div>
-      <h3 style="font-size: 1.15rem; margin-bottom: 0.2rem;">Job Description Match</h3>
-      <p style="font-size: 0.85rem; color: var(--text-secondary);">Direct comparison against role specifications</p>
+      <h3 style="font-size: 1.25rem; margin-bottom: 0.2rem;">Role Skill Matrix Diagnostic</h3>
+      <p style="font-size: 0.85rem; color: var(--text-secondary);">Direct comparison of your resume skills against <strong>{{ analysis.target_role }}</strong> expectations</p>
     </div>
     <div style="text-align: right;">
       <span style="font-size: 1.35rem; font-weight: 800; color: var(--accent-cyan);">{{ data.job_match_score or analysis.job_match_score }}% Match</span>
     </div>
   </div>
 
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-    <!-- Matching Skills -->
-    <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1.15rem;">
-      <h4 style="font-size: 0.9rem; color: var(--success-text); margin-bottom: 0.75rem;">✓ Matching Skills in Resume</h4>
+  <div class="skill-diagnostic-grid">
+    <!-- 1. Matched Skills -->
+    <div class="diagnostic-col matched">
+      <div class="diagnostic-col-title" style="color: var(--success-text);">
+        <span>✓ Matched Skills</span>
+        <span class="badge badge-success">{{ (data.matched_skills or data.existing_skills)|length }}</span>
+      </div>
       <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
-        {% for skill in data.existing_skills %}
-          <span class="badge badge-success">✓ {{ skill }}</span>
+        {% for skill in (data.matched_skills or data.existing_skills) %}
+          <span class="badge badge-success" style="font-size: 0.775rem;">✓ {{ skill }}</span>
         {% else %}
-          <span style="color: var(--text-muted); font-size: 0.8rem;">No exact matches indexed.</span>
+          <span style="color: var(--text-muted); font-size: 0.8rem;">No exact match indexed.</span>
         {% endfor %}
       </div>
     </div>
 
-    <!-- Missing Requirements -->
-    <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1.15rem;">
-      <h4 style="font-size: 0.9rem; color: var(--warning-text); margin-bottom: 0.75rem;">✗ Missing Requirements</h4>
+    <!-- 2. Weak Skills -->
+    <div class="diagnostic-col weak">
+      <div class="diagnostic-col-title" style="color: #fbbf24;">
+        <span>⚡ Weak / Needs Depth</span>
+        <span class="badge badge-warning">{{ data.weak_skills|length }}</span>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+        {% for skill in data.weak_skills %}
+          <span class="badge-weak">⚡ {{ skill }}</span>
+        {% else %}
+          <span style="color: var(--text-muted); font-size: 0.8rem;">No superficial skills detected.</span>
+        {% endfor %}
+      </div>
+      {% if data.weak_skills %}
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.65rem; margin-bottom: 0;">
+          * Mentioned briefly in resume but lacks project outcomes or quantified metrics.
+        </p>
+      {% endif %}
+    </div>
+
+    <!-- 3. Missing Skills -->
+    <div class="diagnostic-col missing">
+      <div class="diagnostic-col-title" style="color: #f87171;">
+        <span>✗ Missing Skills</span>
+        <span class="badge badge-danger">{{ data.missing_skills|length }}</span>
+      </div>
       <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
         {% for skill in data.missing_skills %}
-          <span class="badge badge-warning">✗ {{ skill }}</span>
+          <span class="badge badge-danger" style="font-size: 0.775rem;">+ {{ skill }}</span>
         {% else %}
           <span style="color: var(--success-text); font-size: 0.8rem;">All required core skills present!</span>
         {% endfor %}
@@ -278,10 +313,10 @@
     </div>
   </div>
 
-  <!-- Recommendations -->
+  <!-- Key Recommendations -->
   {% if data.improvement_suggestions %}
-    <div style="margin-top: 1.25rem; background: rgba(6, 182, 212, 0.04); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: var(--radius-sm); padding: 1rem 1.25rem;">
-      <strong style="font-size: 0.85rem; color: var(--accent-cyan); display: block; margin-bottom: 0.45rem;">💡 Key Recommendations:</strong>
+    <div style="background: rgba(6, 182, 212, 0.04); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: var(--radius-sm); padding: 1rem 1.25rem;">
+      <strong style="font-size: 0.85rem; color: var(--accent-cyan); display: block; margin-bottom: 0.45rem;">💡 Key Improvement Steps:</strong>
       <ul style="padding-left: 1.25rem; font-size: 0.85rem; color: var(--text-primary); display: flex; flex-direction: column; gap: 0.35rem;">
         {% for sug in data.improvement_suggestions %}
           <li>{{ sug }}</li>
@@ -291,7 +326,160 @@
   {% endif %}
 </div>
 
-<!-- Section 22: ATS Analysis -->
+<!-- =====================================================================
+     Personalized Learning Plan (Curated AI Library + English & Hinglish)
+     ===================================================================== -->
+<div class="learning-plan-card">
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <span class="badge badge-cyan" style="margin-bottom: 0.35rem;">Role-Aware Career Library</span>
+      <h2 style="font-size: 1.45rem; font-weight: 800; margin-bottom: 0.25rem; color: #ffffff;">
+        Your Personalized Learning Plan
+      </h2>
+      <p style="font-size: 0.875rem; color: var(--text-secondary); max-width: 680px; margin: 0;">
+        Targeted resources for <strong>{{ analysis.target_role }}</strong> with English and Hinglish/Hindi masterclasses, realistic time commitments, practice challenges, and portfolio project ideas.
+      </p>
+    </div>
+    <div style="display: flex; align-items: center; gap: 0.5rem;">
+      <span class="badge badge-primary" style="font-size: 0.775rem; padding: 0.35rem 0.75rem;">
+        {{ (data.learning_resources or [])|length }} Skill Modules
+      </span>
+    </div>
+  </div>
+
+  <div class="learning-grid">
+    {% for item in (data.learning_resources or []) %}
+      <div class="resource-card">
+        <div>
+          <!-- Top Header -->
+          <div class="resource-card-top">
+            <div class="resource-skill-title">{{ item.skill }}</div>
+            <div class="resource-meta-badges">
+              <span class="badge-time">⏱️ {{ item.estimated_time }}</span>
+              <span class="badge-diff {% if 'Beginner' in item.difficulty %}beginner{% elif 'Advanced' in item.difficulty %}advanced{% else %}intermediate{% endif %}">
+                {{ item.difficulty }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Why this skill matters -->
+          <p class="resource-why">
+            <strong>Why it matters:</strong> {{ item.why_matters }}
+          </p>
+
+          <!-- English + Hinglish Buttons -->
+          <div class="resource-actions">
+            {% if item.english_resource %}
+              <a href="{{ item.english_resource.url }}" target="_blank" rel="noopener noreferrer" class="btn-learn-lang english">
+                <span>🇬🇧 Learn in English</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+              </a>
+            {% endif %}
+
+            {% if item.hinglish_resource %}
+              <a href="{{ item.hinglish_resource.url }}" target="_blank" rel="noopener noreferrer" class="btn-learn-lang hinglish">
+                <span>🇮🇳 Learn in Hinglish</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+              </a>
+            {% endif %}
+          </div>
+
+          <!-- Practice Challenge -->
+          {% if item.practice_task %}
+            <div class="task-box">
+              <strong>⚡ Practice Task</strong>
+              <span>{{ item.practice_task }}</span>
+            </div>
+          {% endif %}
+
+          <!-- Project Idea -->
+          {% if item.project_idea %}
+            <div class="project-box-item">
+              <strong>🚀 Portfolio Project Idea</strong>
+              <span>{{ item.project_idea }}</span>
+              {% if item.why_project %}
+                <div style="font-size: 0.775rem; color: var(--text-muted); margin-top: 0.35rem; font-style: italic;">
+                  Why this project: {{ item.why_project }}
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    {% else %}
+      <p style="color: var(--text-secondary); font-size: 0.9rem; grid-column: 1 / -1;">
+        No specific skill gaps detected! Review your customized roadmap below.
+      </p>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Section: Phased Career Roadmap Timeline -->
+<div class="card" style="margin-bottom: 2rem;">
+  <div style="margin-bottom: 1.25rem;">
+    <span class="badge badge-cyan" style="margin-bottom: 0.35rem;">Milestone Progression</span>
+    <h3 style="font-size: 1.25rem; margin-bottom: 0.2rem;">Your Career Roadmap</h3>
+    <p style="font-size: 0.85rem; color: var(--text-secondary);">
+      Actionable step-by-step phases to master missing skills for <strong>{{ analysis.target_role }}</strong>.
+    </p>
+  </div>
+
+  <div class="roadmap-timeline-wrapper">
+    {% for item in data.learning_roadmap %}
+      <div class="roadmap-card-item">
+        <div class="roadmap-step-badge">
+          0{{ loop.index }}
+        </div>
+        <div class="roadmap-content">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.25rem; flex-wrap: wrap; gap: 0.4rem;">
+            <div class="roadmap-skill-name">{{ item.skill }}</div>
+            <div style="display: flex; gap: 0.4rem; align-items: center;">
+              {% if item.time_estimate %}
+                <span class="badge-time">⏱️ {{ item.time_estimate }}</span>
+              {% endif %}
+              <span class="badge badge-primary" style="font-size: 0.75rem;">{{ item.order or item.phase or item.week }}</span>
+            </div>
+          </div>
+          
+          <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.65rem;">
+            {{ item.why }}
+          </p>
+
+          {% if item.practice_task %}
+            <div class="task-box" style="margin-bottom: 0.45rem;">
+              <strong>⚡ Practice Task:</strong>
+              <span>{{ item.practice_task }}</span>
+            </div>
+          {% endif %}
+
+          {% if item.project_idea %}
+            <div class="roadmap-project-box">
+              <strong style="color: var(--accent-cyan); display: block; margin-bottom: 0.15rem;">🛠️ Suggested Project:</strong>
+              <span>{{ item.project_idea }}</span>
+            </div>
+          {% endif %}
+
+          {% if item.english_url or item.hinglish_url %}
+            <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap;">
+              {% if item.english_url %}
+                <a href="{{ item.english_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" style="font-size: 0.75rem; padding: 2px 8px;">
+                  🇬🇧 Learn in English →
+                </a>
+              {% endif %}
+              {% if item.hinglish_url %}
+                <a href="{{ item.hinglish_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm" style="font-size: 0.75rem; padding: 2px 8px; color: #c084fc;">
+                  🇮🇳 Learn in Hinglish →
+                </a>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Section: ATS Analysis Audit -->
 <div class="card" style="margin-bottom: 2rem;">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
     <div>
@@ -325,44 +513,6 @@
         <div class="ats-checklist-item improve">⚠ Quantify project bullet points with percentage and latency metrics</div>
       {% endfor %}
     </div>
-  </div>
-</div>
-
-<!-- Section 23: Career Roadmap Timeline -->
-<div class="card" style="margin-bottom: 2rem;">
-  <div style="margin-bottom: 1.25rem;">
-    <span class="badge badge-cyan" style="margin-bottom: 0.35rem;">Step-by-Step Path</span>
-    <h3 style="font-size: 1.25rem; margin-bottom: 0.2rem;">Your Career Roadmap</h3>
-    <p style="font-size: 0.85rem; color: var(--text-secondary);">
-      Actionable learning phases to master missing skills for <strong>{{ analysis.target_role }}</strong>.
-    </p>
-  </div>
-
-  <div class="roadmap-timeline-wrapper">
-    {% for item in data.learning_roadmap %}
-      <div class="roadmap-card-item">
-        <div class="roadmap-step-badge">
-          0{{ loop.index }}
-        </div>
-        <div class="roadmap-content">
-          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.25rem;">
-            <div class="roadmap-skill-name">{{ item.skill }}</div>
-            <span class="badge badge-primary" style="font-size: 0.75rem;">{{ item.order or item.week }}</span>
-          </div>
-          
-          <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.65rem;">
-            {{ item.why }}
-          </p>
-
-          {% if item.project_idea %}
-            <div class="roadmap-project-box">
-              <strong style="color: var(--accent-cyan); display: block; margin-bottom: 0.15rem;">🛠️ Suggested Practical Project:</strong>
-              <span>{{ item.project_idea }}</span>
-            </div>
-          {% endif %}
-        </div>
-      </div>
-    {% endfor %}
   </div>
 </div>
 
@@ -490,19 +640,22 @@
     {% endfor %}
   </div>
 
-  <!-- Suggested Questions (Section 26) -->
+  <!-- Suggested Questions -->
   <div class="chatbot-suggestions-row">
-    <button type="button" class="chat-prompt-chip chat-suggestion-chip" data-question="Why is my resume score low?">
-      Why is my resume score low?
+    <button type="button" class="chat-prompt-chip chat-suggestion-chip" data-question="What should I learn first?">
+      What should I learn first?
     </button>
-    <button type="button" class="chat-prompt-chip chat-suggestion-chip" data-question="Which skill should I learn first?">
-      Which skill should I learn first?
+    <button type="button" class="chat-prompt-chip chat-suggestion-chip" data-question="Give me a project for my missing skills.">
+      Give me a project for my missing skills
     </button>
-    <button type="button" class="chat-prompt-chip chat-suggestion-chip" data-question="How can I improve my projects?">
-      How can I improve my projects?
+    <button type="button" class="chat-prompt-chip chat-suggestion-chip" data-question="How long will it take to bridge my skill gaps?">
+      How long will it take?
     </button>
-    <button type="button" class="chat-prompt-chip chat-suggestion-chip" data-question="Is my resume suitable for this role?">
-      Is my resume suitable for this role?
+    <button type="button" class="chat-prompt-chip chat-suggestion-chip" data-question="Give me a technical interview preparation plan for {{ analysis.target_role }}.">
+      Interview Preparation Plan
+    </button>
+    <button type="button" class="chat-prompt-chip chat-suggestion-chip" data-question="How can I improve my ATS score?">
+      How to improve ATS score?
     </button>
   </div>
 

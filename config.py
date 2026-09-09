@@ -45,6 +45,15 @@ class Config:
     RATELIMIT_DEFAULT = os.environ.get('RATELIMIT_DEFAULT', "100 per minute")
     RATELIMIT_STORAGE_URI = "memory://"
 
+    # Email / SMTP Configuration
+    MAIL_SERVER = os.environ.get('MAIL_SERVER')
+    MAIL_PORT = int(os.environ.get('MAIL_PORT', 587))
+    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'true').lower() in ['true', '1', 't']
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER') or os.environ.get('MAIL_FROM') or 'noreply@skyguard.ai'
+    MAIL_RESET_TOKEN_EXPIRATION_SECONDS = int(os.environ.get('MAIL_RESET_TOKEN_EXPIRATION_SECONDS', 3600))
+
 
 class DevelopmentConfig(Config):
     """Development configuration."""

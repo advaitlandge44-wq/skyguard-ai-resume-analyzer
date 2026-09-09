@@ -1,60 +1,19 @@
 import re
 from typing import Dict, Any, List
+from app.services.career_roadmap_engine import (
+    ROLE_MATRICES,
+    TARGET_JOB_ROLES,
+    SKILL_ALIASES,
+    normalize_skill_name,
+    get_role_configuration,
+    analyze_skills_against_role,
+    resolve_skill_learning_resources
+)
 
-# Standard role skill requirements taxonomy
-ROLE_TAXONOMY: Dict[str, Dict[str, Any]] = {
-    "python developer": {
-        "core_skills": ["python", "flask", "django", "fastapi", "sql", "postgresql", "git", "rest api", "unit testing", "docker"],
-        "bonus_skills": ["redis", "celery", "aws", "pytest", "graphql", "ci/cd", "linux", "nosql", "mongodb", "microservices"],
-        "description": "Python Software Development, Backend Architecture, and RESTful APIs"
-    },
-    "full stack developer": {
-        "core_skills": ["javascript", "react", "node.js", "html5", "css3", "python", "sql", "git", "rest api", "typescript"],
-        "bonus_skills": ["next.js", "tailwind css", "docker", "mongodb", "postgresql", "aws", "redux", "ci/cd", "vue.js", "graphql"],
-        "description": "Frontend, Backend, and Database Web Application Development"
-    },
-    "backend developer": {
-        "core_skills": ["python", "java", "node.js", "sql", "rest api", "postgresql", "docker", "git", "microservices", "redis"],
-        "bonus_skills": ["kubernetes", "aws", "kafka", "ci/cd", "grpc", "system design", "linux", "mongodb", "elasticsearch"],
-        "description": "Server-side logic, database performance, microservices, and API integrations"
-    },
-    "data analyst": {
-        "core_skills": ["python", "sql", "excel", "tableau", "power bi", "pandas", "numpy", "data visualization", "statistics", "eda"],
-        "bonus_skills": ["r", "machine learning", "bigquery", "snowflake", "matplotlib", "seaborn", "scikit-learn", "git", "etl"],
-        "description": "Data modeling, statistical analysis, dashboard reporting, and business intelligence"
-    },
-    "data scientist": {
-        "core_skills": ["python", "machine learning", "pandas", "numpy", "scikit-learn", "sql", "deep learning", "statistics", "data analysis"],
-        "bonus_skills": ["tensorflow", "pytorch", "nlp", "computer vision", "aws", "docker", "mlops", "spark", "tableau"],
-        "description": "Machine learning modeling, statistical inference, algorithms, and predictive analytics"
-    },
-    "software engineer": {
-        "core_skills": ["python", "java", "c++", "data structures", "algorithms", "git", "sql", "system design", "oop", "testing"],
-        "bonus_skills": ["docker", "linux", "ci/cd", "rest api", "cloud computing", "agile", "microservices", "design patterns"],
-        "description": "General software engineering, data structures, algorithms, and scalable design"
-    },
-    "web developer": {
-        "core_skills": ["html5", "css3", "javascript", "react", "responsive design", "git", "rest api", "bootstrap", "dom manipulation"],
-        "bonus_skills": ["typescript", "tailwind css", "node.js", "seo", "webpack", "sass", "accessibility", "vue.js"],
-        "description": "Client-side and full web interfaces, responsive styling, and modern UI engineering"
-    },
-    "devops engineer": {
-        "core_skills": ["docker", "kubernetes", "linux", "ci/cd", "git", "aws", "terraform", "bash", "python", "jenkins"],
-        "bonus_skills": ["ansible", "prometheus", "grafana", "azure", "gcp", "helm", "networking", "security"],
-        "description": "Cloud infrastructure automation, container orchestration, and CI/CD pipelines"
-    }
-}
+# Backwards compatibility reference to taxonomy
+ROLE_TAXONOMY = ROLE_MATRICES
 
-ALL_RECOGNIZED_SKILLS = [
-    "python", "flask", "django", "fastapi", "java", "spring boot", "c++", "c#", ".net",
-    "javascript", "typescript", "react", "vue.js", "angular", "node.js", "express", "next.js",
-    "html", "html5", "css", "css3", "tailwind css", "bootstrap", "sass",
-    "sql", "mysql", "postgresql", "sqlite", "mongodb", "redis", "elasticsearch", "cassandra",
-    "git", "github", "gitlab", "docker", "kubernetes", "jenkins", "ci/cd", "linux", "bash",
-    "aws", "azure", "gcp", "terraform", "ansible",
-    "machine learning", "deep learning", "nlp", "computer vision", "tensorflow", "pytorch", "scikit-learn", "pandas", "numpy", "matplotlib", "seaborn",
-    "tableau", "power bi", "excel", "rest api", "graphql", "grpc", "microservices", "unit testing", "pytest", "jest", "agile", "scrum", "system design"
-]
+ALL_RECOGNIZED_SKILLS = list(dict.fromkeys(list(SKILL_ALIASES.values())))
 
 ACTION_VERBS = [
     "developed", "built", "engineered", "implemented", "designed", "created", "architected",
@@ -64,17 +23,17 @@ ACTION_VERBS = [
 
 
 def extract_skills_from_text(text: str) -> List[str]:
-    """Finds all recognized technical skills inside a text string."""
+    """Finds all recognized technical skills inside a text string using alias dictionary."""
     text_lower = text.lower()
     found_skills = []
     
-    # Check boundary-matched skills
-    for skill in ALL_RECOGNIZED_SKILLS:
-        pattern = r'(?:\b|_)' + re.escape(skill) + r'(?:\b|_)'
+    for alias_key, canonical_name in SKILL_ALIASES.items():
+        pattern = r'(?:\b|_)' + re.escape(alias_key) + r'(?:\b|_)'
         if re.search(pattern, text_lower):
-            found_skills.append(skill.title() if len(skill) > 4 else skill.upper())
+            if canonical_name not in found_skills:
+                found_skills.append(canonical_name)
             
-    return list(dict.fromkeys(found_skills))  # preserve order & unique
+    return found_skills
 
 
 def analyze_ats_compliance(text: str) -> Dict[str, Any]:
@@ -153,56 +112,34 @@ def analyze_ats_compliance(text: str) -> Dict[str, Any]:
 
 def generate_fallback_analysis(resume_text: str, target_role: str, job_description: str = "") -> Dict[str, Any]:
     """
-    Performs comprehensive heuristic & deterministic NLP analysis of the resume.
-    Ensures 100% adherence to the structured JSON schema.
+    Performs comprehensive heuristic & deterministic NLP analysis of the resume
+    using the role-aware skill matrix across 25 target job roles.
     """
-    role_key = target_role.strip().lower()
-    matched_role_config = None
-    
-    # Try finding closest role template
-    for key, config in ROLE_TAXONOMY.items():
-        if key in role_key or role_key in key:
-            matched_role_config = config
-            break
-            
-    if not matched_role_config:
-        # Default to software engineer taxonomy
-        matched_role_config = ROLE_TAXONOMY["software engineer"]
+    # Role-aware skill matrix analysis
+    skill_analysis = analyze_skills_against_role(
+        resume_text=resume_text,
+        target_role=target_role,
+        job_description=job_description
+    )
 
-    # Extract detected skills from resume
-    detected_skills = extract_skills_from_text(resume_text)
-    
-    # Determine target skills from taxonomy and/or job description
-    target_skills_raw = list(matched_role_config["core_skills"] + matched_role_config["bonus_skills"][:4])
-    if job_description:
-        jd_skills = extract_skills_from_text(job_description)
-        if jd_skills:
-            target_skills_raw = [s.lower() for s in jd_skills]
-
-    # Normalize comparison
-    detected_lower = {s.lower() for s in detected_skills}
-    matching_skills = []
-    missing_skills = []
-
-    for req in target_skills_raw:
-        clean_req = req.lower()
-        if any(clean_req in det or det in clean_req for det in detected_lower):
-            matching_skills.append(clean_req.title() if len(clean_req) > 4 else clean_req.upper())
-        else:
-            missing_skills.append(clean_req.title() if len(clean_req) > 4 else clean_req.upper())
-
-    matching_skills = list(dict.fromkeys(matching_skills))
-    missing_skills = list(dict.fromkeys(missing_skills))
+    canonical_role_title = skill_analysis["target_role"]
+    matched_skills = skill_analysis["matched_skills"]
+    weak_skills = skill_analysis["weak_skills"]
+    missing_skills = skill_analysis["missing_skills"]
+    learning_resources = skill_analysis["learning_resources"]
+    learning_roadmap = skill_analysis["learning_roadmap"]
 
     # Calculate ATS score
     ats_result = analyze_ats_compliance(resume_text)
     ats_score = ats_result["ats_score"]
 
-    # Calculate Job Match score
-    total_req_count = len(matching_skills) + len(missing_skills)
+    # Calculate Job Match score with JD priority
+    total_req_count = len(matched_skills) + len(weak_skills) + len(missing_skills)
     if total_req_count > 0:
-        match_ratio = len(matching_skills) / total_req_count
-        job_match_score = int(40 + (match_ratio * 55))
+        # Full weight for matched, partial weight (0.5) for weak
+        effective_matched = len(matched_skills) + (0.5 * len(weak_skills))
+        match_ratio = effective_matched / total_req_count
+        job_match_score = int(35 + (match_ratio * 60))
     else:
         job_match_score = 70
     job_match_score = max(30, min(95, job_match_score))
@@ -211,37 +148,16 @@ def generate_fallback_analysis(resume_text: str, target_role: str, job_descripti
     overall_score = int((ats_score * 0.45) + (job_match_score * 0.55))
     overall_score = max(40, min(98, overall_score))
 
-    # Generate Learning Roadmap
-    learning_roadmap = []
-    top_missing = missing_skills[:5] if missing_skills else ["Docker", "CI/CD Pipelines", "System Design", "Unit Testing", "Cloud Architecture"]
-    
-    order_labels = ["Week 1-2 (Foundation)", "Week 3 (Core Integration)", "Week 4 (Architecture & Scale)", "Week 5 (Testing & Quality)", "Week 6 (Deployment & Cloud)"]
-    project_ideas = [
-        "Build a dedicated REST API service showcasing clean repository architecture.",
-        "Containerize your backend application with multi-stage Docker builds.",
-        "Implement automated CI/CD workflows with GitHub Actions.",
-        "Add unit and integration test suites with 80%+ code coverage.",
-        "Deploy the application to AWS/GCP with secure secrets management."
-    ]
-
-    for idx, skill in enumerate(top_missing):
-        learning_roadmap.append({
-            "week": f"Phase {idx + 1}",
-            "order": order_labels[idx] if idx < len(order_labels) else f"Phase {idx + 1}",
-            "skill": skill,
-            "why": f"Crucial for modern {target_role.title()} positions to handle production-scale workloads.",
-            "project_idea": project_ideas[idx] if idx < len(project_ideas) else f"Develop a capstone project utilizing {skill}."
-        })
-
-    # Recommended job roles comparison
+    # Recommended job roles comparison across 25 roles
+    detected_lower = {s.lower() for s in (matched_skills + weak_skills)}
     recommended_roles = []
-    for role_name, config in ROLE_TAXONOMY.items():
+    for role_name, config in ROLE_MATRICES.items():
         core = [s.lower() for s in config["core_skills"]]
-        matches = sum(1 for c in core if any(c in d for d in detected_lower))
-        score = int((matches / max(1, len(core))) * 90) + 10
-        score = min(95, max(45, score))
+        matches = sum(1 for c in core if any(c in d or d in c for d in detected_lower))
+        score = int((matches / max(1, len(core))) * 88) + 12
+        score = min(96, max(40, score))
         recommended_roles.append({
-            "role": role_name.title(),
+            "role": config["title"],
             "match_percentage": score,
             "explanation": f"Matches {matches} out of {len(core)} core competencies in {config['description']}."
         })
@@ -260,22 +176,28 @@ def generate_fallback_analysis(resume_text: str, target_role: str, job_descripti
 
     # Strengths and Weaknesses
     strengths = [
-        f"Demonstrates practical knowledge in key tools: {', '.join(detected_skills[:5])}" if detected_skills else "Clear educational and project background provided.",
-        "Contains relevant project experience aligning with software engineering principles.",
+        f"Demonstrates practical knowledge in key tools: {', '.join(matched_skills[:5])}" if matched_skills else "Clear educational and project background provided.",
+        f"Relevant competencies identified that align with standard {canonical_role_title} engineering principles.",
         f"Well-structured resume sections with an ATS readability score of {ats_score}/100."
     ]
 
-    weaknesses = [
-        f"Skill gap identified in target role competencies: {', '.join(missing_skills[:4])}" if missing_skills else "Could expand on production cloud deployments.",
-        "Project descriptions could benefit from more quantifiable business/performance impact numbers.",
-        "ATS formatting can be enhanced by aligning keywords more closely with target job requirements."
-    ]
+    weaknesses = []
+    if missing_skills:
+        weaknesses.append(f"Skill gap identified in target role competencies: {', '.join(missing_skills[:4])}.")
+    if weak_skills:
+        weaknesses.append(f"Found limited project depth in secondary competencies: {', '.join(weak_skills[:3])}.")
+    if not weaknesses:
+        weaknesses.append("Could expand on production cloud deployments and automated monitoring.")
+    weaknesses.append("Project descriptions could benefit from more quantifiable business and performance metrics (e.g. latency, user scale, % speedup).")
+    weaknesses.append("ATS formatting can be enhanced by aligning keywords more closely with target job requirements.")
 
-    # Summary
+    # Executive Summary
+    all_known_str = ', '.join(matched_skills[:4]) if matched_skills else 'core software development'
+    missing_str = ', '.join(missing_skills[:3]) if missing_skills else 'cloud and CI/CD'
     summary = (
-        f"Candidate possesses a solid foundation with skills in {', '.join(detected_skills[:4]) if detected_skills else 'core software development'}. "
-        f"For the target role of '{target_role.title()}', the profile demonstrates a {job_match_score}% alignment. "
-        f"Addressing key missing competencies such as {', '.join(missing_skills[:3]) if missing_skills else 'cloud and CI/CD'} will significantly enhance competitiveness."
+        f"Candidate possesses a solid foundation with verified skills in {all_known_str}. "
+        f"For the target role of '{canonical_role_title}', the profile demonstrates a {job_match_score}% alignment. "
+        f"Bridging key missing competencies such as {missing_str} through targeted hands-on projects will significantly elevate candidacy."
     )
 
     return {
@@ -283,8 +205,12 @@ def generate_fallback_analysis(resume_text: str, target_role: str, job_descripti
         "ats_score": ats_score,
         "job_match_score": job_match_score,
         "summary": summary,
-        "existing_skills": detected_skills if detected_skills else ["Python", "Git", "Problem Solving", "Object-Oriented Programming"],
-        "missing_skills": missing_skills if missing_skills else ["Docker", "Cloud (AWS/GCP)", "CI/CD", "Automated Testing"],
+        "existing_skills": matched_skills if matched_skills else ["Python", "Git", "Problem Solving", "Object-Oriented Programming"],
+        "matched_skills": matched_skills if matched_skills else ["Python", "Git", "Problem Solving", "Object-Oriented Programming"],
+        "weak_skills": weak_skills,
+        "missing_skills": missing_skills if missing_skills else ["Docker", "AWS", "CI/CD", "Automated Testing"],
+        "learning_resources": learning_resources,
+        "learning_roadmap": learning_roadmap,
         "strengths": strengths,
         "weaknesses": weaknesses,
         "experience_feedback": [
@@ -304,8 +230,7 @@ def generate_fallback_analysis(resume_text: str, target_role: str, job_descripti
         "improvement_suggestions": [
             f"Incorporate missing high-demand skills ({', '.join(missing_skills[:3])}) into project bullet points.",
             "Add quantifiable metrics to at least 3 project descriptions.",
-            "Tailor the resume headline and summary to specifically reference " + target_role.title() + "."
+            "Tailor the resume headline and summary to specifically reference " + canonical_role_title + "."
         ],
-        "learning_roadmap": learning_roadmap,
         "recommended_job_roles": recommended_roles
     }

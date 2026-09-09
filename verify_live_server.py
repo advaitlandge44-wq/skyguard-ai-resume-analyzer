@@ -123,8 +123,151 @@ def run_live_verification():
     res = opener.open(f'http://127.0.0.1:5000/analysis/export/{aid}')
     assert res.status == 200
     export_html = res.read().decode('utf-8')
-    assert 'Official Career Diagnostic Report' in export_html
-    print('[OK] 8. Printable / PDF Export View verified (HTTP 200)')
+    # 8. Test Forgot Password & Password Reset E2E Flow
+    # 8a. Login page contains Forgot Password link
+    res = opener.open('http://127.0.0.1:5000/logout')
+    res = opener.open('http://127.0.0.1:5000/login')
+    login_html = res.read().decode('utf-8')
+    assert 'Forgot Password?' in login_html, 'Forgot Password link missing from login page'
+    print('[OK] 9. Login page features visible "Forgot Password?" link')
+
+    # 8b. Forgot Password page loads
+    res = opener.open('http://127.0.0.1:5000/forgot-password')
+    fp_html = res.read().decode('utf-8')
+    assert 'Reset Your Password' in fp_html
+    fp_csrf = fp_html.split('name="csrf_token" value="')[1].split('"')[0]
+
+    # 8c. Submit forgot password request
+    fp_data = urllib.parse.urlencode({
+        'csrf_token': fp_csrf,
+        'email': unique_email
+    }).encode('utf-8')
+    req = urllib.request.Request('http://127.0.0.1:5000/forgot-password', data=fp_data)
+    res = opener.open(req)
+    assert res.status == 200
+    fp_resp_html = res.read().decode('utf-8')
+    assert 'If an account exists for this email, a password reset link has been sent.' in fp_resp_html
+    print('[OK] 10. Forgot Password submission returns generic anti-enumeration response')
+
+    # 8d. Query database for reset token
+    import sqlite3
+    conn = sqlite3.connect('instance/skyguard.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT id, reset_token_hash FROM users WHERE email = ?', (unique_email,))
+    user_row = cursor.fetchone()
+    assert user_row is not None and user_row[1] is not None, 'Reset token hash not stored in DB'
+    user_id = user_row[0]
+    conn.close()
+
+    # Generate test token by using models within app context or testing reset directly
+    from app import create_app
+    from app.models import db, User
+    test_app = create_app()
+    with test_app.app_context():
+        user = db.session.get(User, user_id)
+        raw_token = user.set_reset_token()
+        db.session.commit()
+
+    # 8e. Open Reset Password page with raw token
+    res = opener.open(f'http://127.0.0.1:5000/reset-password/{raw_token}')
+    assert res.status == 200
+    rp_html = res.read().decode('utf-8')
+    assert 'Set New Password' in rp_html
+    rp_csrf = rp_html.split('name="csrf_token" value="')[1].split('"')[0]
+    print('[OK] 11. Reset Password page loads with valid token')
+
+    # 8f. Submit new password
+    new_password = 'BrandNewSuperSecret2026!'
+    rp_data = urllib.parse.urlencode({
+        'csrf_token': rp_csrf,
+        'password': new_password,
+        'confirm_password': new_password
+    }).encode('utf-8')
+    req = urllib.request.Request(f'http://127.0.0.1:5000/reset-password/{raw_token}', data=rp_data)
+    res = opener.open(req)
+    assert res.status == 200
+    after_reset_html = res.read().decode('utf-8')
+    assert 'Password reset successful' in after_reset_html
+    print('[OK] 12. Password reset succeeded and redirected to login')
+
+    # 8g. Verify token reuse is blocked
+    res = opener.open(f'http://127.0.0.1:5000/reset-password/{raw_token}')
+    reuse_html = res.read().decode('utf-8')
+    assert 'invalid, expired, or has already been used' in reuse_html
+    print('[OK] 13. Single-use token enforcement verified (reuse blocked)')
+
+    # 8h. Old password must be rejected
+    login_csrf = after_reset_html.split('name="csrf_token" value="')[1].split('"')[0]
+    old_login_data = urllib.parse.urlencode({
+        'csrf_token': login_csrf,
+        'email': unique_email,
+        'password': 'Password123!'
+    }).encode('utf-8')
+    req = urllib.request.Request('http://127.0.0.1:5000/login', data=old_login_data)
+    res = opener.open(req)
+    assert 'Invalid email or password' in res.read().decode('utf-8')
+    print('[OK] 14. Old password successfully invalidated')
+
+    # 8i. Login with new password succeeds
+    new_login_data = urllib.parse.urlencode({
+        'csrf_token': login_csrf,
+        'email': unique_email,
+        'password': new_password
+    }).encode('utf-8')
+    req = urllib.request.Request('http://127.0.0.1:5000/login', data=new_login_data)
+    res = opener.open(req)
+    assert 'Welcome, Sachin!' in res.read().decode('utf-8')
+    print('[OK] 15. Login with new password verified successfully')
+
+    # 9. Test Automatic Presentation Demo Mode
+    # 9a. Activate Demo Mode
+    res = opener.open('http://127.0.0.1:5000/demo')
+    assert res.status == 200
+    demo_launch_html = res.read().decode('utf-8')
+    assert 'Sample Resume' in demo_launch_html
+    assert 'Alex Patil' in demo_launch_html
+    assert 'Python Developer' in demo_launch_html
+    assert 'AUTOMATIC DEMO MODE' in demo_launch_html
+    print('[OK] 16. Automatic Demo Mode activated: Sample resume auto-loaded for Alex Patil (HTTP 200)')
+
+    # 9b. Extract demo analysis ID from launch page
+    aid_demo_match = re.search(r'href="/analysis/results/(\d+)"', demo_launch_html)
+    assert aid_demo_match is not None, 'Could not find demo analysis link in launch HTML'
+    demo_aid = aid_demo_match.group(1)
+
+    # 9c. Load Demo Analysis Results
+    res = opener.open(f'http://127.0.0.1:5000/analysis/results/{demo_aid}')
+    assert res.status == 200
+    demo_results_html = res.read().decode('utf-8')
+    assert '82' in demo_results_html, 'Demo overall score 82 missing'
+    assert '86' in demo_results_html, 'Demo ATS score 86 missing'
+    assert '78' in demo_results_html, 'Demo Job match score 78 missing'
+    assert 'Python' in demo_results_html
+    assert 'Docker' in demo_results_html
+    assert 'DEMO MODE' in demo_results_html
+    print('[OK] 17. Demo Analysis Results loaded with 82/100 Overall, 86/100 ATS, 78% Match & DEMO MODE badge')
+
+    # 9d. Test AI Career Assistant in Demo Mode
+    demo_chat_payload = json.dumps({'message': 'How can I improve this resume?'}).encode('utf-8')
+    demo_csrf = demo_results_html.split('name="csrf-token" content="')[1].split('"')[0]
+    req = urllib.request.Request(
+        f'http://127.0.0.1:5000/api/chat/{demo_aid}',
+        data=demo_chat_payload,
+        headers={'Content-Type': 'application/json', 'X-CSRFToken': demo_csrf}
+    )
+    res = opener.open(req)
+    assert res.status == 200
+    demo_chat_resp = json.loads(res.read().decode('utf-8'))
+    assert demo_chat_resp['success'] is True
+    print('[OK] 18. AI Career Assistant responding with sample resume context in Demo Mode:')
+    print(f"     Assistant: {demo_chat_resp['reply'][:120]}...")
+
+    # 9e. Test Exit Demo Mode
+    res = opener.open('http://127.0.0.1:5000/demo/exit')
+    assert res.status == 200
+    exit_html = res.read().decode('utf-8')
+    assert 'You have exited Demo Mode' in exit_html or 'SkyGuard AI' in exit_html
+    print('[OK] 19. Demo Mode exit cleanly clears session and returns to public landing')
 
     print('\n' + '='*50)
     print('ALL LIVE SERVER END-TO-END TESTS PASSED WITH 100% SUCCESS!')

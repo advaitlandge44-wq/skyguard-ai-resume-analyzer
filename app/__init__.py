@@ -67,9 +67,10 @@ def create_app(config_name='default'):
     @app.context_processor
     def inject_globals():
         return {
-            'current_user': g.user,
+            'current_user': getattr(g, 'user', None),
             'app_name': 'SkyGuard AI',
-            'openai_enabled': bool(app.config.get('OPENAI_API_KEY'))
+            'openai_enabled': bool(app.config.get('OPENAI_API_KEY')),
+            'is_demo': session.get('is_demo', False)
         }
 
     # Register Blueprints
@@ -91,14 +92,24 @@ def create_app(config_name='default'):
     # Create tables automatically if running in dev/standalone
     with app.app_context():
         db.create_all()
-        # Safe automatic column migration for resumes.target_role
+        # Safe automatic column migration for existing SQLite databases
         try:
             with db.engine.connect() as conn:
-                result = conn.execute(db.text("PRAGMA table_info(resumes)"))
-                columns = [row[1] for row in result.fetchall()]
-                if 'target_role' not in columns:
+                # 1. Resumes table migration
+                result_resumes = conn.execute(db.text("PRAGMA table_info(resumes)"))
+                resume_cols = [row[1] for row in result_resumes.fetchall()]
+                if 'target_role' not in resume_cols:
                     conn.execute(db.text("ALTER TABLE resumes ADD COLUMN target_role VARCHAR(100) DEFAULT ''"))
-                    conn.commit()
+
+                # 2. Users table migration for password reset tokens
+                result_users = conn.execute(db.text("PRAGMA table_info(users)"))
+                user_cols = [row[1] for row in result_users.fetchall()]
+                if 'reset_token_hash' not in user_cols:
+                    conn.execute(db.text("ALTER TABLE users ADD COLUMN reset_token_hash VARCHAR(255)"))
+                if 'reset_token_expires_at' not in user_cols:
+                    conn.execute(db.text("ALTER TABLE users ADD COLUMN reset_token_expires_at DATETIME"))
+
+                conn.commit()
         except Exception:
             pass
 

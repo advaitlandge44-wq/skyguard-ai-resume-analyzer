@@ -16,8 +16,9 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/variables.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
   {% block extra_css %}{% endblock %}
-</head>
 <body>
+  <!-- Neural AI Background Canvas -->
+  <canvas id="neural-bg-canvas"></canvas>
 
 {% if current_user and request.endpoint != 'main.index' %}
   <!-- Authenticated App Shell with Sidebar -->
@@ -31,6 +32,9 @@
             </svg>
           </div>
           <span class="brand-text">SkyGuard <span>AI</span></span>
+          {% if is_demo %}
+            <span style="background: rgba(0, 240, 255, 0.15); border: 1px solid var(--accent-cyan); color: var(--accent-cyan); padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.05em; margin-left: 0.4rem;">DEMO</span>
+          {% endif %}
         </a>
       </div>
 
@@ -127,6 +131,15 @@
         </div>
 
         <div style="display: flex; align-items: center; gap: 0.75rem;">
+          {% if is_demo %}
+            <div style="display: flex; align-items: center; gap: 0.45rem; background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.3); padding: 3px 10px; border-radius: 9999px;">
+              <span class="pulse-dot" style="width: 6px; height: 6px; background: var(--accent-cyan);"></span>
+              <span style="font-size: 0.7rem; font-weight: 800; color: var(--accent-cyan); letter-spacing: 0.05em;">DEMO MODE</span>
+            </div>
+            <a href="{{ url_for('main.exit_demo') }}" class="btn btn-outline btn-sm" style="border-color: rgba(239, 68, 68, 0.4); color: #f87171; padding: 4px 10px; font-size: 0.775rem;">
+              <span>Exit Demo</span>
+            </a>
+          {% endif %}
           <a href="{{ url_for('resume.upload') }}" class="btn btn-cyan btn-sm">
             <span>+ Analyze New Resume</span>
           </a>
@@ -172,12 +185,17 @@
 
       <ul class="nav-links" id="public-nav-links">
         <li><a href="{{ url_for('main.index') }}#features" class="nav-link">Features</a></li>
-        <li><a href="{{ url_for('main.index') }}#how-it-works" class="nav-link">How It Works</a></li>
-        <li><a href="{{ url_for('main.index') }}#why-skyguard" class="nav-link">Why SkyGuard</a></li>
+        <li><a href="{{ url_for('main.index') }}#scores" class="nav-link">ATS Scores</a></li>
+        <li><a href="{{ url_for('main.index') }}#skill-gap" class="nav-link">Skill Gap</a></li>
+        <li><a href="{{ url_for('main.index') }}#job-match" class="nav-link">Job Match</a></li>
+        <li><a href="{{ url_for('main.index') }}#roadmap" class="nav-link">Roadmap</a></li>
       </ul>
 
       <div class="nav-auth">
         {% if current_user %}
+          {% if is_demo %}
+            <a href="{{ url_for('main.exit_demo') }}" class="btn btn-outline btn-sm" style="border-color: rgba(239, 68, 68, 0.4); color: #f87171;">Exit Demo</a>
+          {% endif %}
           <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary btn-sm">Go to Dashboard</a>
         {% else %}
           <a href="{{ url_for('auth.login') }}" class="btn btn-outline btn-sm">Login</a>

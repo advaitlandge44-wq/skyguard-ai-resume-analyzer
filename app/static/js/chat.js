@@ -84,12 +84,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const msgDiv = document.createElement('div');
     msgDiv.className = `chat-bubble-row ${role}`;
 
+    const avatarDiv = document.createElement('div');
+    avatarDiv.className = `chat-avatar-badge ${role}`;
+    avatarDiv.textContent = role === 'user' ? 'YOU' : 'AI';
+
     const bubbleDiv = document.createElement('div');
     bubbleDiv.className = 'chat-bubble-content';
     
-    // Format line breaks
+    // Format line breaks safely
     bubbleDiv.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
 
+    msgDiv.appendChild(avatarDiv);
     msgDiv.appendChild(bubbleDiv);
     chatMessages.appendChild(msgDiv);
     scrollToBottom();
@@ -100,8 +105,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const indicator = document.createElement('div');
     indicator.className = 'chat-bubble-row assistant typing-indicator-msg';
     indicator.innerHTML = `
-      <div class="chat-bubble-content" style="opacity: 0.8; font-style: italic;">
-        <span style="display:inline-block; animation: pulse 1.5s infinite;">● AI is thinking...</span>
+      <div class="chat-avatar-badge assistant">AI</div>
+      <div class="chat-bubble-content" style="display: flex; align-items: center; gap: 6px; padding: 0.75rem 1rem;">
+        <span class="chat-typing-dot"></span>
+        <span class="chat-typing-dot" style="animation-delay: 0.2s;"></span>
+        <span class="chat-typing-dot" style="animation-delay: 0.4s;"></span>
       </div>
     `;
     chatMessages.appendChild(indicator);

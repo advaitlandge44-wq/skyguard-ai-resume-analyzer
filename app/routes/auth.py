@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session, g
 from app.models import db, User, Analysis
 from app.services.security import login_required, validate_email_address, validate_password_strength
+from app.services.email import send_password_reset_email
 from app import limiter
 
 auth_bp = Blueprint('auth', __name__)
@@ -98,6 +99,85 @@ def login():
 
     prefilled_email = request.args.get('email', '')
     return render_template('auth/login.html', email=prefilled_email)
+
+
+@auth_bp.route('/forgot-password', methods=['GET', 'POST'])
+@limiter.limit("10 per minute")
+def forgot_password():
+    """Handles password reset requests with anti-enumeration protection."""
+    if g.user:
+        return redirect(url_for('main.dashboard'))
+
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip().lower()
+
+        if not email:
+            flash('Please enter your email address.', 'danger')
+            return render_template('auth/forgot_password.html', email=email)
+
+        valid_email, normalized_or_err = validate_email_address(email)
+        if not valid_email:
+            flash(f'Invalid email: {normalized_or_err}', 'danger')
+            return render_template('auth/forgot_password.html', email=email)
+
+        email = normalized_or_err
+        user = User.query.filter_by(email=email).first()
+
+        if user:
+            token = user.set_reset_token()
+            db.session.commit()
+            if email == 'demo@skyguard.ai':
+                demo_reset_url = url_for('auth.reset_password', token=token)
+                flash('Demo Mode: Live email dispatch is bypassed. You can proceed directly with the demonstration reset link below.', 'info')
+                return render_template('auth/forgot_password.html', email_sent=True, email=email, is_demo_reset=True, demo_reset_url=demo_reset_url)
+            
+            reset_url = url_for('auth.reset_password', token=token, _external=True)
+            send_password_reset_email(user, reset_url)
+
+        # Anti-enumeration: generic response regardless of whether account exists
+        flash('If an account exists for this email, a password reset link has been sent.', 'info')
+        return render_template('auth/forgot_password.html', email_sent=True, email=email)
+
+    return render_template('auth/forgot_password.html')
+
+
+@auth_bp.route('/reset-password/<token>', methods=['GET', 'POST'])
+@limiter.limit("15 per minute")
+def reset_password(token):
+    """Handles password reset token validation and password change."""
+    if g.user:
+        return redirect(url_for('main.dashboard'))
+
+    user = User.verify_reset_token(token)
+    if not user:
+        flash('The password reset link is invalid, expired, or has already been used. Please request a new one.', 'danger')
+        return render_template('auth/reset_password.html', invalid_token=True)
+
+    if request.method == 'POST':
+        password = request.form.get('password', '')
+        confirm_password = request.form.get('confirm_password', '')
+
+        if not password:
+            flash('Please enter a new password.', 'danger')
+            return render_template('auth/reset_password.html', token=token)
+
+        if password != confirm_password:
+            flash('Passwords do not match. Please re-enter.', 'danger')
+            return render_template('auth/reset_password.html', token=token)
+
+        valid_pw, pw_err = validate_password_strength(password)
+        if not valid_pw:
+            flash(pw_err, 'danger')
+            return render_template('auth/reset_password.html', token=token)
+
+        user.set_password(password)
+        user.clear_reset_token()
+        db.session.commit()
+
+        flash('Password reset successful. You can now log in.', 'success')
+        return redirect(url_for('auth.login'))
+
+    return render_template('auth/reset_password.html', token=token)
 
 
 @auth_bp.route('/logout', methods=['GET', 'POST'])

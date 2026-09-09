@@ -6,35 +6,21 @@ from app.models import db, Resume, Analysis
 from app.services.security import login_required, generate_safe_filename, sanitize_text
 from app.services.pdf_parser import extract_resume_text, ResumeExtractionError
 from app.services.openai_service import analyze_resume_with_ai
+from app.services.career_roadmap_engine import TARGET_JOB_ROLES, ROLE_CATEGORIES
 from app import limiter
 
 logger = logging.getLogger(__name__)
 
 resume_bp = Blueprint('resume', __name__)
 
-POPULAR_ROLES = [
-    "Python Developer",
-    "Full Stack Developer",
-    "Backend Developer",
-    "Frontend Developer",
-    "Data Analyst",
-    "Data Scientist",
-    "Software Engineer",
-    "Web Developer",
-    "DevOps Engineer",
-    "Machine Learning Engineer",
-    "Cloud Solutions Architect",
-    "Cybersecurity Analyst",
-    "Product Manager",
-    "QA / Test Automation Engineer"
-]
+POPULAR_ROLES = TARGET_JOB_ROLES
 
 
 @resume_bp.route('/upload', methods=['GET', 'POST'])
 @login_required
 @limiter.limit("15 per minute")
 def upload():
-    """Renders upload page and processes resume text extraction & AI analysis."""
+    """Renders upload page and processes resume text extraction & AI analysis across 25 target job roles."""
     if request.method == 'POST':
         target_role_select = request.form.get('target_role_select', '').strip()
         custom_role = request.form.get('custom_role', '').strip()
@@ -44,24 +30,24 @@ def upload():
         target_role = custom_role if custom_role else target_role_select
         if not target_role:
             flash('Please select or enter a target job role.', 'danger')
-            return render_template('resume/upload.html', popular_roles=POPULAR_ROLES, job_description=job_description)
+            return render_template('resume/upload.html', popular_roles=POPULAR_ROLES, role_categories=ROLE_CATEGORIES, job_description=job_description)
 
         # Validate file presence
         if 'resume_file' not in request.files:
             flash('Please select a resume file (PDF or TXT) to upload.', 'danger')
-            return render_template('resume/upload.html', popular_roles=POPULAR_ROLES, target_role=target_role, job_description=job_description)
+            return render_template('resume/upload.html', popular_roles=POPULAR_ROLES, role_categories=ROLE_CATEGORIES, target_role=target_role, job_description=job_description)
 
         file = request.files['resume_file']
         if not file or file.filename == '':
             flash('No file selected. Please choose a PDF or TXT resume.', 'danger')
-            return render_template('resume/upload.html', popular_roles=POPULAR_ROLES, target_role=target_role, job_description=job_description)
+            return render_template('resume/upload.html', popular_roles=POPULAR_ROLES, role_categories=ROLE_CATEGORIES, target_role=target_role, job_description=job_description)
 
         # Validate extension
         clean_display_name, stored_filename, ext = generate_safe_filename(file.filename)
 
         if ext not in current_app.config['ALLOWED_EXTENSIONS']:
             flash(f"Unsupported file type (.{ext}). Only .pdf and .txt files are allowed.", 'danger')
-            return render_template('resume/upload.html', popular_roles=POPULAR_ROLES, target_role=target_role, job_description=job_description)
+            return render_template('resume/upload.html', popular_roles=POPULAR_ROLES, role_categories=ROLE_CATEGORIES, target_role=target_role, job_description=job_description)
 
         # Save to uploads directory
         save_path = os.path.join(current_app.config['UPLOAD_FOLDER'], stored_filename)
@@ -75,7 +61,7 @@ def upload():
                 except OSError:
                     pass
                 flash('The uploaded file is completely empty.', 'danger')
-                return render_template('resume/upload.html', popular_roles=POPULAR_ROLES, target_role=target_role, job_description=job_description)
+                return render_template('resume/upload.html', popular_roles=POPULAR_ROLES, role_categories=ROLE_CATEGORIES, target_role=target_role, job_description=job_description)
 
             if file_size > current_app.config['MAX_CONTENT_LENGTH']:
                 try:
@@ -83,7 +69,7 @@ def upload():
                 except OSError:
                     pass
                 flash('The uploaded file exceeds the 5MB maximum size limit.', 'danger')
-                return render_template('resume/upload.html', popular_roles=POPULAR_ROLES, target_role=target_role, job_description=job_description)
+                return render_template('resume/upload.html', popular_roles=POPULAR_ROLES, role_categories=ROLE_CATEGORIES, target_role=target_role, job_description=job_description)
 
             # Extract & normalize text from document
             extracted_text = extract_resume_text(save_path, ext)
@@ -96,7 +82,7 @@ def upload():
                 except OSError:
                     pass
             flash(str(e), 'danger')
-            return render_template('resume/upload.html', popular_roles=POPULAR_ROLES, target_role=target_role, job_description=job_description)
+            return render_template('resume/upload.html', popular_roles=POPULAR_ROLES, role_categories=ROLE_CATEGORIES, target_role=target_role, job_description=job_description)
         except Exception as e:
             if os.path.exists(save_path):
                 try:
@@ -105,7 +91,7 @@ def upload():
                     pass
             logger.error(f"Unexpected file extraction error: {e}", exc_info=True)
             flash('Failed to process the uploaded resume file. Please ensure it is a valid document.', 'danger')
-            return render_template('resume/upload.html', popular_roles=POPULAR_ROLES, target_role=target_role, job_description=job_description)
+            return render_template('resume/upload.html', popular_roles=POPULAR_ROLES, role_categories=ROLE_CATEGORIES, target_role=target_role, job_description=job_description)
 
         # Save Resume in Database
         try:
@@ -150,9 +136,9 @@ def upload():
             db.session.rollback()
             logger.error(f"Analysis creation error: {e}", exc_info=True)
             flash('An error occurred during analysis. Please try again.', 'danger')
-            return render_template('resume/upload.html', popular_roles=POPULAR_ROLES, target_role=target_role, job_description=job_description)
+            return render_template('resume/upload.html', popular_roles=POPULAR_ROLES, role_categories=ROLE_CATEGORIES, target_role=target_role, job_description=job_description)
 
-    return render_template('resume/upload.html', popular_roles=POPULAR_ROLES)
+    return render_template('resume/upload.html', popular_roles=POPULAR_ROLES, role_categories=ROLE_CATEGORIES)
 
 
 @resume_bp.route('/view/<int:resume_id>')

@@ -17,6 +17,8 @@ class User(db.Model):
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=False)
+    reset_token_hash = db.Column(db.String(255), nullable=True, index=True)
+    reset_token_expires_at = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=get_utc_now)
 
     # Relationships with cascading delete
@@ -31,6 +33,47 @@ class User(db.Model):
     def check_password(self, password: str) -> bool:
         """Checks if provided password matches hash."""
         return check_password_hash(self.password_hash, password)
+
+    def set_reset_token(self, raw_token: str = None, expires_in_seconds: int = 3600) -> str:
+        """Generates (or uses provided) raw token, hashes with SHA-256, sets expiration, and returns raw token."""
+        import hashlib
+        import secrets
+        from datetime import timedelta
+        if not raw_token:
+            raw_token = secrets.token_urlsafe(32)
+        self.reset_token_hash = hashlib.sha256(raw_token.encode('utf-8')).hexdigest()
+        self.reset_token_expires_at = get_utc_now() + timedelta(seconds=expires_in_seconds)
+        return raw_token
+
+    @classmethod
+    def verify_reset_token(cls, raw_token: str):
+        """
+        Finds user by token hash and verifies validity and expiration.
+        Returns User instance if valid, or None if invalid/expired.
+        """
+        import hashlib
+        if not raw_token:
+            return None
+
+        token_hash = hashlib.sha256(raw_token.encode('utf-8')).hexdigest()
+        user = cls.query.filter_by(reset_token_hash=token_hash).first()
+        if not user or not user.reset_token_expires_at:
+            return None
+
+        now = get_utc_now()
+        expires_at = user.reset_token_expires_at
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+
+        if now > expires_at:
+            return None
+
+        return user
+
+    def clear_reset_token(self):
+        """Clears reset token fields after single use."""
+        self.reset_token_hash = None
+        self.reset_token_expires_at = None
 
     def to_dict(self):
         return {

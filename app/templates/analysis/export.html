@@ -57,20 +57,27 @@
       color: #3730a3;
       border: 1px solid #c7d2fe;
     }
-    .pill.missing {
+    .pill.weak {
       background: #fef3c7;
-      color: #92400e;
+      color: #b45309;
       border: 1px solid #fde68a;
+    }
+    .pill.missing {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
     }
     .roadmap-step {
       border: 1px solid #e2e8f0;
       border-radius: 6px;
-      padding: 10px 12px;
-      margin-bottom: 8px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
       background: #fafafa;
     }
-    .roadmap-step h4 { font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 2px; }
-    .roadmap-step p { font-size: 12px; color: #475569; }
+    .roadmap-step h4 { font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 3px; display: flex; justify-content: space-between; }
+    .roadmap-step p { font-size: 12px; color: #475569; margin-bottom: 4px; }
+    .task-callout { font-size: 11px; color: #0f766e; background: #f0fdfa; padding: 4px 8px; border-radius: 4px; margin-top: 4px; border: 1px solid #ccfbf1; }
+    .project-callout { font-size: 11px; color: #1d4ed8; background: #eff6ff; padding: 4px 8px; border-radius: 4px; margin-top: 4px; border: 1px solid #dbeafe; }
     .footer {
       border-top: 1px solid #e2e8f0;
       padding-top: 15px;
@@ -146,18 +153,29 @@
   </div>
 
   <div class="section">
-    <div class="section-title">Skill Diagnostic Matrix</div>
+    <div class="section-title">3-Way Skill Diagnostic Matrix</div>
     <div style="margin-bottom: 12px;">
-      <strong style="font-size: 12px; color: #166534;">Detected Technical Skills:</strong>
+      <strong style="font-size: 12px; color: #166534;">✓ Matched Skills in Resume:</strong>
       <div class="skills-pills">
-        {% for skill in data.existing_skills %}
-          <span class="pill">{{ skill }}</span>
+        {% for skill in (data.matched_skills or data.existing_skills) %}
+          <span class="pill">✓ {{ skill }}</span>
         {% endfor %}
       </div>
     </div>
 
+    {% if data.weak_skills %}
+      <div style="margin-bottom: 12px;">
+        <strong style="font-size: 12px; color: #b45309;">⚡ Weak Skills (Needs Quantifiable Experience):</strong>
+        <div class="skills-pills">
+          {% for skill in data.weak_skills %}
+            <span class="pill weak">⚡ {{ skill }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
     <div>
-      <strong style="font-size: 12px; color: #9a3412;">Recommended Missing Skills for {{ analysis.target_role }}:</strong>
+      <strong style="font-size: 12px; color: #b91c1c;">✗ Recommended Missing Skills for {{ analysis.target_role }}:</strong>
       <div class="skills-pills">
         {% for skill in data.missing_skills %}
           <span class="pill missing">+ {{ skill }}</span>
@@ -167,7 +185,7 @@
   </div>
 
   <div class="section">
-    <div class="section-title">Strengths & High-Impact Areas</div>
+    <div class="section-title">Strengths &amp; High-Impact Highlights</div>
     <ul style="padding-left: 18px; font-size: 13px; color: #334155;">
       {% for s in data.strengths %}
         <li style="margin-bottom: 4px;">{{ s }}</li>
@@ -176,19 +194,29 @@
   </div>
 
   <div class="section">
-    <div class="section-title">Recommended Learning Roadmap</div>
+    <div class="section-title">Personalized Career Roadmap &amp; Practical Projects</div>
     {% for item in data.learning_roadmap %}
       <div class="roadmap-step">
-        <h4>{{ item.order or item.week }}: {{ item.skill }}</h4>
+        <h4>
+          <span>{{ item.order or item.phase or item.week }}: {{ item.skill }}</span>
+          {% if item.time_estimate %}
+            <span style="font-size: 11px; font-weight: 600; color: #64748b;">⏱️ {{ item.time_estimate }}</span>
+          {% endif %}
+        </h4>
         <p><strong>Rationale:</strong> {{ item.why }}</p>
-        <p><strong>Hands-on Project:</strong> {{ item.project_idea }}</p>
+        {% if item.practice_task %}
+          <div class="task-callout"><strong>Practice Challenge:</strong> {{ item.practice_task }}</div>
+        {% endif %}
+        {% if item.project_idea %}
+          <div class="project-callout"><strong>Hands-on Project:</strong> {{ item.project_idea }}</div>
+        {% endif %}
       </div>
     {% endfor %}
   </div>
 
   <div class="footer">
-    <span>SkyGuard AI Resume Analyzer • Final Year College Engineering Project</span>
-    <span>Generated securely via PyMuPDF & AI Diagnostic Engine</span>
+    <span>SkyGuard AI Resume Analyzer &bull; Career Roadmap Engine</span>
+    <span>Generated securely via PyMuPDF &amp; AI Diagnostic Engine</span>
   </div>
 
 </body>
