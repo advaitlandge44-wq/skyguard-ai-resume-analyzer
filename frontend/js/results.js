@@ -36,11 +36,14 @@ document.addEventListener('DOMContentLoaded', async () => {
           window.location.href = `login.html?next=results.html?id=${analysisId}`;
         }, 1500);
       } else if (dynamicContainer) {
+        const displayMsg = (window.SkyGuardAPI && window.SkyGuardAPI.extractErrorMessage)
+          ? window.SkyGuardAPI.extractErrorMessage(err, 'Unable to retrieve analysis data. The session may have expired or was removed.')
+          : (err.message || 'Unable to retrieve analysis data. The session may have expired or was removed.');
         dynamicContainer.innerHTML = `
           <div class="empty-placeholder" style="margin-top: 3rem;">
             <div class="empty-placeholder-icon">⚠️</div>
             <h3>Analysis Report Not Found</h3>
-            <p>${err.message || 'Unable to retrieve analysis data. The session may have expired or was removed.'}</p>
+            <p>${displayMsg}</p>
             <a href="upload.html" class="btn btn-primary">Scan New Resume</a>
           </div>
         `;

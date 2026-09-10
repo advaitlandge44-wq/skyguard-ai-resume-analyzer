@@ -18,6 +18,8 @@ instance/
 # Uploaded Resumes (Confidential User Files)
 uploads/*
 !uploads/.gitkeep
+uploads_test/*
+!uploads_test/.gitkeep
 
 # Environment variables & API keys
 .env

@@ -218,7 +218,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             window.location.href = 'login.html?next=upload.html';
           }, 1200);
         } else {
-          if (window.showToast) window.showToast(err.message || 'An error occurred during upload. Please try again.', 'danger');
+          const displayMsg = (window.SkyGuardAPI && window.SkyGuardAPI.extractErrorMessage)
+            ? window.SkyGuardAPI.extractErrorMessage(err, 'An error occurred during upload. Please try again.')
+            : (err.message || 'An error occurred during upload. Please try again.');
+          if (window.showToast) window.showToast(displayMsg, 'danger');
         }
       }
     });

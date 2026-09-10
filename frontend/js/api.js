@@ -15,6 +15,54 @@
     return base ? `${base}${cleanEndpoint}` : cleanEndpoint;
   }
 
+  /**
+   * Robustly extracts a human-readable error string from any error object,
+   * nested structure, validation map, or response payload.
+   * Prevents "[object Object]" from ever reaching the UI.
+   */
+  function extractErrorMessage(source, defaultMsg = 'An unexpected error occurred.') {
+    if (!source) return defaultMsg;
+    if (typeof source === 'string') {
+      const trimmed = source.trim();
+      if (!trimmed || trimmed === '[object Object]') return defaultMsg;
+      return trimmed;
+    }
+    if (source instanceof Error) {
+      if (source.message && source.message !== '[object Object]' && source.message.trim()) {
+        return source.message.trim();
+      }
+      if (source.data) {
+        return extractErrorMessage(source.data, defaultMsg);
+      }
+    }
+    if (typeof source === 'object') {
+      if (source.error) {
+        return extractErrorMessage(source.error, defaultMsg);
+      }
+      if (source.message) {
+        return extractErrorMessage(source.message, defaultMsg);
+      }
+      if (source.detail) {
+        return extractErrorMessage(source.detail, defaultMsg);
+      }
+      if (Array.isArray(source.errors) && source.errors.length > 0) {
+        const joined = source.errors.map(e => extractErrorMessage(e, '')).filter(Boolean).join('; ');
+        if (joined) return joined;
+      }
+      if (source.errors && typeof source.errors === 'object') {
+        const msgs = Object.values(source.errors).flat().map(e => extractErrorMessage(e, '')).filter(Boolean);
+        if (msgs.length > 0) return msgs.join('; ');
+      }
+      if (source.code && source.message) {
+        return `${source.message} (${source.code})`;
+      }
+      if (source.raw && typeof source.raw === 'string' && source.raw.trim()) {
+        return extractErrorMessage(source.raw, defaultMsg);
+      }
+    }
+    return defaultMsg;
+  }
+
   async function request(endpoint, options = {}) {
     const url = buildUrl(endpoint);
     const defaultHeaders = {
@@ -46,7 +94,7 @@
       }
 
       if (!response.ok) {
-        const errorMsg = (data && data.error) || (data && data.message) || `Request failed with status ${response.status}`;
+        const errorMsg = extractErrorMessage(data, `Request failed with status ${response.status}`);
         const err = new Error(errorMsg);
         err.status = response.status;
         err.data = data;
@@ -138,8 +186,11 @@
 
     improver: {
       improve: (bulletText, targetRole = 'Software Engineer') => api.post('/api/improve-bullet', { bullet_text: bulletText, target_role: targetRole })
-    }
+    },
+
+    extractErrorMessage: extractErrorMessage
   };
 
   window.SkyGuardAPI = api;
+  window.extractErrorMessage = extractErrorMessage;
 })();

@@ -13,23 +13,26 @@
     window.location.protocol === 'file:'
   );
 
+  const PRODUCTION_BACKEND_URL = 'https://skyguard-ai-resume-analyzer.onrender.com';
+
   // Resolution order for API Base URL:
   // 1. Explicit runtime environment variable injected via window.ENV_API_BASE_URL
   // 2. Custom override in localStorage for staging / preview deployments
   // 3. Localhost fallback (http://127.0.0.1:5000) during local testing
-  // 4. Relative URL ('') if deployed on same origin or production default
+  // 4. Production Render backend default (https://skyguard-ai-resume-analyzer.onrender.com)
   let apiBaseUrl = '';
 
-  if (window.ENV_API_BASE_URL && typeof window.ENV_API_BASE_URL === 'string') {
-    apiBaseUrl = window.ENV_API_BASE_URL.replace(/\/+$/, '');
-  } else if (localStorage.getItem('SKYGUARD_API_URL')) {
-    apiBaseUrl = localStorage.getItem('SKYGUARD_API_URL').replace(/\/+$/, '');
+  const envUrl = window.ENV_API_BASE_URL;
+  const storageUrl = typeof localStorage !== 'undefined' ? localStorage.getItem('SKYGUARD_API_URL') : null;
+
+  if (envUrl && typeof envUrl === 'string' && envUrl.trim() && envUrl !== '[object Object]') {
+    apiBaseUrl = envUrl.trim().replace(/\/+$/, '');
+  } else if (storageUrl && typeof storageUrl === 'string' && (storageUrl.startsWith('http://') || storageUrl.startsWith('https://')) && storageUrl !== '[object Object]') {
+    apiBaseUrl = storageUrl.trim().replace(/\/+$/, '');
   } else if (isLocalhost) {
     apiBaseUrl = 'http://127.0.0.1:5000';
   } else {
-    // Production Render backend placeholder / relative fallback
-    // Configure window.ENV_API_BASE_URL in your HTML or deployment settings
-    apiBaseUrl = window.ENV_API_BASE_URL || '';
+    apiBaseUrl = PRODUCTION_BACKEND_URL;
   }
 
   window.APP_CONFIG = {

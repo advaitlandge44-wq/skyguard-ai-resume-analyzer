@@ -82,7 +82,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (err.status === 401) {
           if (window.showToast) window.showToast('Please log in to use the AI bullet improver.', 'warning');
         } else {
-          if (window.showToast) window.showToast(err.message || 'Network error while contacting AI service.', 'danger');
+          const displayMsg = (window.SkyGuardAPI && window.SkyGuardAPI.extractErrorMessage)
+            ? window.SkyGuardAPI.extractErrorMessage(err, 'Network error while contacting AI service.')
+            : (err.message || 'Network error while contacting AI service.');
+          if (window.showToast) window.showToast(displayMsg, 'danger');
         }
       } finally {
         if (improveBtn) {

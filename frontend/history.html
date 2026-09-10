@@ -82,6 +82,9 @@
   </div>
 
   <!-- Scripts -->
+  <script>
+    window.ENV_API_BASE_URL = "https://skyguard-ai-resume-analyzer.onrender.com";
+  </script>
   <script src="js/config.js"></script>
   <script src="js/api.js"></script>
   <script src="js/main.js"></script>
@@ -161,11 +164,14 @@
         if (err.status === 401) {
           window.location.href = 'login.html?next=history.html';
         } else {
+          const displayMsg = (window.SkyGuardAPI && window.SkyGuardAPI.extractErrorMessage)
+            ? window.SkyGuardAPI.extractErrorMessage(err, 'Unable to connect to Render backend.')
+            : (err.message || 'Unable to connect to Render backend.');
           container.innerHTML = `
             <div class="empty-placeholder">
               <div class="empty-placeholder-icon">⚠️</div>
               <h3>Failed to Load History</h3>
-              <p>${err.message || 'Unable to connect to Render backend.'}</p>
+              <p>${displayMsg}</p>
             </div>
           `;
         }

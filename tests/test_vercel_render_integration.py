@@ -1,6 +1,7 @@
 import io
 import os
 import re
+import json
 import pytest
 from app import create_app
 from app.models import db, User, Analysis
@@ -215,3 +216,71 @@ def test_render_deployment_files():
         assert 'gunicorn run:app' in r_content
         assert '/api/health' in r_content
         assert 'FLASK_CONFIG' in r_content
+
+
+def test_vercel_rewrites_and_config_fallback():
+    """Verify vercel.json contains /api/(.*) rewrite and config.js has reliable Render default."""
+    base_dir = os.path.join(os.path.dirname(__file__), '..')
+    vercel_json_path = os.path.join(base_dir, 'frontend', 'vercel.json')
+    assert os.path.exists(vercel_json_path)
+    with open(vercel_json_path, 'r') as f:
+        v_data = json.load(f)
+        rewrites = v_data.get('rewrites', [])
+        api_rewrite = next((r for r in rewrites if '/api/' in r.get('source', '')), None)
+        assert api_rewrite is not None, "vercel.json must have /api/ rewrite to Render backend"
+        assert 'onrender.com' in api_rewrite.get('destination', '')
+
+    config_js_path = os.path.join(base_dir, 'frontend', 'js', 'config.js')
+    assert os.path.exists(config_js_path)
+    with open(config_js_path, 'r', encoding='utf-8') as f:
+        c_content = f.read()
+        assert 'PRODUCTION_BACKEND_URL' in c_content
+        assert 'onrender.com' in c_content
+
+    api_js_path = os.path.join(base_dir, 'frontend', 'js', 'api.js')
+    assert os.path.exists(api_js_path)
+    with open(api_js_path, 'r', encoding='utf-8') as f:
+        a_content = f.read()
+        assert 'extractErrorMessage' in a_content
+        assert '[object Object]' in a_content  # Sanitization check
+
+
+def test_api_registration_validation_errors(api_client):
+    """Verify that backend registration returns clean string error messages with exact HTTP status codes."""
+    # 1. Missing name -> 400
+    r1 = api_client.post('/api/auth/register', json={'name': '', 'email': 'test@example.com', 'password': 'Password123!', 'confirm_password': 'Password123!'})
+    assert r1.status_code == 400
+    assert r1.get_json()['success'] is False
+    assert isinstance(r1.get_json()['error'], str)
+    assert 'full name' in r1.get_json()['error'].lower()
+
+    # 2. Invalid email -> 400
+    r2 = api_client.post('/api/auth/register', json={'name': 'User', 'email': 'invalid-email', 'password': 'Password123!', 'confirm_password': 'Password123!'})
+    assert r2.status_code == 400
+    assert r2.get_json()['success'] is False
+    assert isinstance(r2.get_json()['error'], str)
+
+    # 3. Weak password -> 400
+    r3 = api_client.post('/api/auth/register', json={'name': 'User', 'email': 'valid@example.com', 'password': 'short', 'confirm_password': 'short'})
+    assert r3.status_code == 400
+    assert r3.get_json()['success'] is False
+    assert isinstance(r3.get_json()['error'], str)
+
+    # 4. Mismatched passwords -> 400
+    r4 = api_client.post('/api/auth/register', json={'name': 'User', 'email': 'valid@example.com', 'password': 'Password123!', 'confirm_password': 'Different123!'})
+    assert r4.status_code == 400
+    assert r4.get_json()['success'] is False
+    assert 'match' in r4.get_json()['error'].lower()
+
+    # 5. Success -> 201
+    r5 = api_client.post('/api/auth/register', json={'name': 'Valid User', 'email': 'valid_user@example.com', 'password': 'Password123!', 'confirm_password': 'Password123!'})
+    assert r5.status_code == 201
+    assert r5.get_json()['success'] is True
+    assert r5.get_json()['user']['email'] == 'valid_user@example.com'
+
+    # 6. Duplicate registration -> 409
+    r6 = api_client.post('/api/auth/register', json={'name': 'Valid User', 'email': 'valid_user@example.com', 'password': 'Password123!', 'confirm_password': 'Password123!'})
+    assert r6.status_code == 409
+    assert r6.get_json()['success'] is False
+    assert 'already exists' in r6.get_json()['error'].lower()
+

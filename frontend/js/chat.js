@@ -74,7 +74,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (err.status === 401) {
           appendMessage('assistant', 'Session expired. Please log in again.');
         } else {
-          appendMessage('assistant', err.message || 'Network error. Please check your connection and try again.');
+          const displayMsg = (window.SkyGuardAPI && window.SkyGuardAPI.extractErrorMessage)
+            ? window.SkyGuardAPI.extractErrorMessage(err, 'Network error. Please check your connection and try again.')
+            : (err.message || 'Network error. Please check your connection and try again.');
+          appendMessage('assistant', displayMsg);
         }
       } finally {
         if (sendBtn) sendBtn.disabled = false;

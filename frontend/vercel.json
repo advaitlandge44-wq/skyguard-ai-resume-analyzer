@@ -20,6 +20,7 @@
     }
   ],
   "rewrites": [
+    { "source": "/api/(.*)", "destination": "https://skyguard-ai-resume-analyzer.onrender.com/api/$1" },
     { "source": "/", "destination": "/index.html" },
     { "source": "/upload", "destination": "/upload.html" },
     { "source": "/results", "destination": "/results.html" },
