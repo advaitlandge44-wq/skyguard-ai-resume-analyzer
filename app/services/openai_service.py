@@ -296,6 +296,191 @@ Return JSON:
         }
 
 
+def generate_offline_career_chat_reply(
+    user_message: str,
+    analysis_summary: str,
+    target_role: str,
+    analysis_data: Optional[Dict[str, Any]] = None
+) -> str:
+    """
+    Deterministic, context-rich offline career assistant.
+    Provides expert guidance based on the candidate's analysis results
+    (scores, matched skills, weak skills, missing skills, roadmap, projects).
+    Guarantees 100% continuous chat capability without external API dependencies.
+    """
+    analysis_data = analysis_data or {}
+    msg = (user_message or "").strip().lower()
+
+    # 1. Demo Mode Check
+    if "alex patil" in (analysis_summary or "").lower() or analysis_data.get("is_demo") or "alex.patil" in (analysis_summary or "").lower():
+        from app.services.demo_service import get_demo_chat_reply
+        return get_demo_chat_reply(user_message)
+
+    # 2. Extract Candidate Analysis Context
+    matched_skills = analysis_data.get("matched_skills") or analysis_data.get("existing_skills") or []
+    weak_skills = analysis_data.get("weak_skills") or []
+    missing_skills = analysis_data.get("missing_skills") or []
+    strengths = analysis_data.get("strengths") or []
+    weaknesses = analysis_data.get("weaknesses") or []
+    improvement_suggestions = analysis_data.get("improvement_suggestions") or []
+    formatting_feedback = analysis_data.get("formatting_feedback") or []
+    learning_roadmap = analysis_data.get("learning_roadmap") or []
+    
+    overall_score = analysis_data.get("overall_score")
+    ats_score = analysis_data.get("ats_score")
+    job_match_score = analysis_data.get("job_match_score")
+
+    # If skills are empty, use role configuration as a smart baseline
+    if not missing_skills and not matched_skills:
+        role_config = get_role_configuration(target_role)
+        core = role_config.get("core_skills", [])
+        if core:
+            missing_skills = core[:3]
+            matched_skills = core[3:6] if len(core) > 3 else []
+
+    top_missing = missing_skills[0] if missing_skills else (weak_skills[0] if weak_skills else "Core Architecture & Frameworks")
+    second_missing = missing_skills[1] if len(missing_skills) > 1 else None
+
+    # Topic 1: What to learn first / Priority / Next skill / Getting started
+    if any(k in msg for k in ["first", "start", "priority", "prioritize", "what should i learn", "which skill", "next skill", "begin", "where to start", "step 1"]):
+        res = resolve_skill_learning_resources(top_missing, target_role)
+        next_line = f"\n• **Next Step**: Once comfortable with {top_missing}, proceed to **{second_missing}** in your roadmap." if second_missing else ""
+        return (
+            f"For your target role of **{target_role}**, prioritize mastering **{top_missing}** first!\n\n"
+            f"• **Why It Matters**: {res['why_matters']}\n"
+            f"• **Estimated Time**: {res['estimated_time']} ({res['difficulty']} level)\n"
+            f"• **Practice Task**: {res['practice_task']}\n"
+            f"• **Project Idea**: {res['project_idea']}"
+            f"{next_line}\n\n"
+            f"Check your Personalized Learning Plan below for curated English & Hinglish video masterclasses!"
+        )
+
+    # Topic 2: Why do I need <skill>?
+    elif "why do i need" in msg or "why learn" in msg or ("why" in msg and any(s.lower() in msg for s in (missing_skills + weak_skills + matched_skills))):
+        detected_skill = top_missing
+        for s in (missing_skills + weak_skills + matched_skills):
+            if s.lower() in msg:
+                detected_skill = s
+                break
+        res = resolve_skill_learning_resources(detected_skill, target_role)
+        return (
+            f"**Why {detected_skill} is essential for {target_role}:**\n\n"
+            f"• **Industry Standard**: {res['why_matters']}\n"
+            f"• **Production Impact**: Essential for building scalable, maintainable systems and collaborating effectively in modern engineering teams.\n"
+            f"• **Hands-on Task**: {res['practice_task']}"
+        )
+
+    # Topic 3: Project / Portfolio / Capstone / What to build
+    elif any(k in msg for k in ["project", "portfolio", "hands-on", "build", "capstone", "github", "what project", "application"]):
+        res = resolve_skill_learning_resources(top_missing, target_role)
+        known_str = ", ".join(matched_skills[:3]) if matched_skills else target_role
+        missing_str = ", ".join(missing_skills[:2]) if missing_skills else top_missing
+        return (
+            f"**Recommended Capstone Portfolio Project for {target_role}:**\n\n"
+            f"• **Project Title**: {res['project_idea']}\n"
+            f"• **Tech Stack**: {known_str} + {missing_str}\n"
+            f"• **Hands-on Milestone**: {res['practice_task']}\n"
+            f"• **Recruiter Appeal**: {res['why_project']}\n\n"
+            f"💡 **Pro Tip**: Publish this project on GitHub with a comprehensive README, architecture diagram, and automated CI/CD unit tests to prove production readiness!"
+        )
+
+    # Topic 4: Resume Improvement / How to improve / Weaknesses / Higher score
+    elif any(k in msg for k in ["improve", "better", "increase score", "higher score", "boost", "enhance", "weakness", "how can i", "feedback", "suggestion"]):
+        score_info = f" (Current Overall Score: **{overall_score}/100**)" if overall_score else ""
+        gap_str = ", ".join(missing_skills[:3]) if missing_skills else "high-demand production tools"
+        return (
+            f"To elevate your resume for **{target_role}**{score_info}, focus on three high-impact optimizations:\n\n"
+            f"1. **Bridge Key Skill Gaps**: Add verifiable project proof for **{gap_str}** to your skills and project sections.\n"
+            f"2. **Quantify Impact with STAR**: Structure your bullet points with measurable metrics (e.g. *'optimized query performance by 30%'*, *'served 10,000+ daily requests'*).\n"
+            f"3. **Align ATS Keywords**: Ensure role-critical terminology for **{target_role}** is placed naturally across your summary and experience headings.\n\n"
+            f"Check the Improvement Suggestions and ATS Feedback cards on your Results page for step-by-step guidance!"
+        )
+
+    # Topic 5: ATS Score / Readability / Formatting / Parsing
+    elif any(k in msg for k in ["ats", "parse", "format", "readability", "keyword", "layout", "scan"]):
+        ats_info = f"**{ats_score}/100**" if ats_score else "85+/100"
+        return (
+            f"**ATS (Applicant Tracking System) Readability for {target_role}:**\n\n"
+            f"• **ATS Score**: {ats_info}\n"
+            f"• **Clean Hierarchy**: Use standard section headers (*Work Experience*, *Technical Skills*, *Projects*, *Education*) with standard single-column text flow.\n"
+            f"• **Keyword Density**: Integrate core keywords ({', '.join(missing_skills[:3] + matched_skills[:2]) if (missing_skills or matched_skills) else target_role}) naturally into bullet points.\n"
+            f"• **Header Contact Info**: Ensure your email, phone, LinkedIn, and GitHub profiles parse cleanly without graphics or tables."
+        )
+
+    # Topic 6: Job Readiness / Am I ready / Qualification / Fit / Match
+    elif any(k in msg for k in ["ready", "qualified", "eligib", "chance", "fit", "match", "can i get", "hire", "level"]):
+        match_val = job_match_score if job_match_score is not None else 75
+        status_text = (
+            f"**Strong alignment ({match_val}%)!** You have solid foundational competency in {', '.join(matched_skills[:4]) if matched_skills else 'core tools'}."
+            if match_val >= 80 else
+            f"**Competitive profile ({match_val}%)!** You meet primary requirements with {', '.join(matched_skills[:3]) if matched_skills else 'core skills'}, but bridging {', '.join(missing_skills[:2]) if missing_skills else 'secondary gaps'} will maximize interview callbacks."
+            if match_val >= 60 else
+            f"**Emerging candidate ({match_val}%)!** Focus on building hands-on projects for {', '.join(missing_skills[:3]) if missing_skills else 'core requirements'} to reach full market competitiveness."
+        )
+        return (
+            f"**Job Readiness Assessment for {target_role}:**\n\n"
+            f"{status_text}\n\n"
+            f"• **Verified Strengths**: {', '.join(matched_skills[:5]) if matched_skills else 'Baseline programming competencies'}\n"
+            f"• **Priority Gaps**: {', '.join(missing_skills[:3]) if missing_skills else 'Advanced tooling & deployment'}\n\n"
+            f"Follow your 4-Quarter Learning Roadmap below to close these skill gaps systematically!"
+        )
+
+    # Topic 7: Roadmap / Timeline / Time estimates / How long / Duration / Hours
+    elif any(k in msg for k in ["how long", "time", "duration", "hours", "roadmap", "timeline", "schedule", "weeks", "months"]):
+        res = resolve_skill_learning_resources(top_missing, target_role)
+        return (
+            f"**Estimated Learning Timeline for {target_role}:**\n\n"
+            f"• **Phase 1 — Core Fundamentals**: 6–12 hours\n"
+            f"• **Phase 2 — Key Tooling ({top_missing})**: {res['estimated_time']}\n"
+            f"• **Phase 3 — Cloud & DevOps ({second_missing if second_missing else 'Infrastructure'})**: 10–18 hours\n"
+            f"• **Phase 4 — Capstone Portfolio Project**: 10–20 hours\n\n"
+            f"• **Total Estimated Time**: **25 to 45 hours** of structured study and hands-on practice to achieve Senior/Market-ready proficiency."
+        )
+
+    # Topic 8: Interview Preparation / Questions / Behavioral / System Design
+    elif any(k in msg for k in ["interview", "question", "prepare", "prep", "coding", "technical round", "behavioral", "system design"]):
+        return (
+            f"**Technical Interview Strategy for {target_role}:**\n\n"
+            f"1. **Core Language & Architecture**: Be prepared to explain fundamentals, memory management, and trade-offs for {target_role}.\n"
+            f"2. **Real-world Problem Solving**: Practice explaining how you optimize performance, handle edge cases, and structure modular code.\n"
+            f"3. **System Design & Scale**: Understand database indexing, caching strategies (Redis), and REST/microservice API contracts.\n"
+            f"4. **STAR Behavioral Method**: Articulate your projects with clear Situation, Task, Action, and quantified Result metrics."
+        )
+
+    # Topic 9: Missing Skills / Gaps / Skill Overview
+    elif any(k in msg for k in ["skill", "learn", "missing", "gap", "lacking", "what skills"]):
+        weak_str = f"• **Skills to Deepen**: {', '.join(weak_skills)}\n" if weak_skills else ""
+        return (
+            f"**Skill Competency Breakdown for {target_role}:**\n\n"
+            f"• **Verified Strengths ({len(matched_skills)})**: {', '.join(matched_skills) if matched_skills else 'Standard technical competencies'}\n"
+            f"• **Top Missing Skills ({len(missing_skills)})**: {', '.join(missing_skills) if missing_skills else 'None specifically missing'}\n"
+            f"{weak_str}"
+            f"Check each skill's dedicated card below on the Results page to access step-by-step video tutorials and practice tasks!"
+        )
+
+    # Topic 10: Hinglish / Hindi Language Support
+    elif any(k in msg for k in ["hinglish", "hindi", "kaise", "kya", "kare", "shuru", "padhe", "batao", "karna"]):
+        return (
+            f"Aapke **{target_role}** ke career roadmap mein har missing skill ke liye **English aur Hinglish / Hindi** dono mein verified video masterclasses available hain.\n\n"
+            f"• **Top Priority Skill**: **{top_missing}**\n"
+            f"• Aap seedha Results page ke learning cards se **Hinglish Tutorial** button par click karke video playlist open kar sakte hain!"
+        )
+
+    # Topic 11: General / Default Career Advisor Overview
+    else:
+        return (
+            f"I am your **SkyGuard AI Career Assistant** for **{target_role}**.\n\n"
+            f"• **Verified Strengths**: {', '.join(matched_skills[:4]) if matched_skills else 'Core technical skills'}\n"
+            f"• **Recommended Growth Focus**: {', '.join(missing_skills[:3]) if missing_skills else 'Cloud deployment & containerization'}\n\n"
+            f"**You can ask me about:**\n"
+            f"• *\"What skill should I learn first?\"*\n"
+            f"• *\"How can I improve my resume score?\"*\n"
+            f"• *\"What capstone project should I build?\"*\n"
+            f"• *\"Am I ready to apply for {target_role} roles?\"*\n"
+            f"• *\"What interview questions should I prepare?\"*"
+        )
+
+
 def ask_resume_assistant(
     chat_history: List[Dict[str, str]],
     user_message: str,
@@ -307,9 +492,22 @@ def ask_resume_assistant(
     Handles interactive chatbot inquiries about the user's resume and analysis results.
     Knowledgeable about candidate's role, matched skills, weak skills, missing skills,
     recommended learning resources (English + Hinglish), practice tasks, and roadmap.
+
+    Primary: Attempts OpenAI API when configured.
+    Fallback: Gracefully falls back to the deterministic contextual career advisor
+              on ANY runtime, connection, authentication, or quota error.
     """
     client = get_openai_client()
     model_name = current_app.config.get('OPENAI_MODEL', 'gpt-4o-mini')
+
+    # If no OpenAI client is available (no key or invalid key at startup), use offline advisor immediately
+    if not client:
+        return generate_offline_career_chat_reply(
+            user_message=user_message,
+            analysis_summary=analysis_summary,
+            target_role=target_role,
+            analysis_data=analysis_data
+        )
 
     # Extract detailed context if provided
     matched_skills = []
@@ -319,37 +517,6 @@ def ask_resume_assistant(
         matched_skills = analysis_data.get("matched_skills") or analysis_data.get("existing_skills") or []
         weak_skills = analysis_data.get("weak_skills") or []
         missing_skills = analysis_data.get("missing_skills") or []
-
-    if not client:
-        # Check if this is demo analysis or general fallback
-        if "Alex Patil" in analysis_summary or target_role == "Python Developer":
-            from app.services.demo_service import get_demo_chat_reply
-            return get_demo_chat_reply(user_message)
-
-        # Fallback offline chatbot
-        msg_lower = user_message.lower()
-        if "score" in msg_lower or "low" in msg_lower:
-            return f"Your overall resume score reflects both ATS readability and skill alignment with the {target_role} role. To increase your score, focus on adding missing high-demand skills ({', '.join(missing_skills[:3]) if missing_skills else 'core tools'}) and quantifying your project outcomes."
-        elif "first" in msg_lower or "start" in msg_lower or "priority" in msg_lower:
-            top_skill = missing_skills[0] if missing_skills else "REST APIs & Architecture"
-            return f"For a **{target_role}** position, prioritize mastering **{top_skill}** first. It forms the foundational prerequisite before advancing to deployment and scaling."
-        elif "why do i need" in msg_lower or "why" in msg_lower and any(s.lower() in msg_lower for s in (missing_skills + weak_skills)):
-            return f"For {target_role} positions, this skill is essential for industry-standard production environments to ensure system scalability, clean code separation, and reliable team collaboration."
-        elif "project" in msg_lower or "hands-on" in msg_lower:
-            skill = missing_skills[0] if missing_skills else target_role
-            res = resolve_skill_learning_resources(skill, target_role)
-            return f"**Recommended Project for {skill}:**\n\n• **Title**: {res['project_idea']}\n• **Practice Task**: {res['practice_task']}\n• **Why it matters**: {res['why_project']}"
-        elif "how long" in msg_lower or "time" in msg_lower or "hours" in msg_lower:
-            return f"Mastering the key skill gaps for **{target_role}** typically takes **25 to 45 hours** total across structured learning, hands-on practice tasks, and building a capstone portfolio project."
-        elif "interview" in msg_lower or "question" in msg_lower or "prep" in msg_lower:
-            return f"For **{target_role}** technical interviews, focus on:\n1. Core architectural concepts and tradeoffs\n2. Real-world debugging & performance tuning\n3. System design principles (caching, data persistence, and concurrency)\n4. Explaining your projects using the STAR method (Situation, Task, Action, Result)."
-        elif "hinglish" in msg_lower or "hindi" in msg_lower:
-            top_skill = missing_skills[0] if missing_skills else target_role
-            return f"Aapke learning plan mein har missing skill ke liye **Hinglish / Hindi** video masterclasses available hain. Aap **{top_skill}** ko Hinglish mein directly Results page ke learning card se open kar sakte hain!"
-        elif "skill" in msg_lower or "learn" in msg_lower or "missing" in msg_lower:
-            return f"Based on your target role of **{target_role}**, your top missing skills are **{', '.join(missing_skills[:4]) if missing_skills else 'modern frameworks'}**. Check your Personalized Learning Plan below for step-by-step English & Hinglish tutorials!"
-        else:
-            return f"I am your SkyGuard AI Career Assistant for **{target_role}**. You can ask me about:\n• Which missing skill to learn first\n• Capstone project ideas for your skill gaps\n• Realistic learning timelines\n• Technical interview preparation strategies!"
 
     context_details = f"""
 TARGET ROLE: {target_role}
@@ -395,5 +562,13 @@ RULES:
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
-        logger.error(f"OpenAI chat assistant error: {e}")
-        return "I'm temporarily having trouble connecting to the AI service. Please try asking again in a moment."
+        logger.warning(
+            f"OpenAI chat completion failed ({type(e).__name__}: {e}). "
+            f"Falling back to contextual offline career advisor for role '{target_role}'."
+        )
+        return generate_offline_career_chat_reply(
+            user_message=user_message,
+            analysis_summary=analysis_summary,
+            target_role=target_role,
+            analysis_data=analysis_data
+        )
